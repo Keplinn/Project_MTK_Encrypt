@@ -694,9 +694,19 @@
           </div>
 
           <!-- Chamber Title & Torch Status -->
-          <div class="flex items-center justify-between md:justify-end gap-4 bg-temple-900/90 px-3 py-1.5 rounded-xl border border-temple-600">
+          <div class="flex items-center justify-between md:justify-end gap-3 sm:gap-4 bg-temple-900/90 px-3 py-1.5 rounded-xl border border-temple-600 flex-wrap">
             <div class="text-xs font-cinzel font-bold text-amber-300" id="hudChamberTitle">
               PINTU 1: Gerbang Luar Kuil
+            </div>
+
+            <!-- Player Health (Hearts) -->
+            <div id="hudPlayerHealth" class="flex items-center gap-1.5 bg-rose-950/40 border border-rose-500/40 px-2 sm:px-2.5 py-1 rounded-lg" title="Kesehatan Peneliti (Awas Jebakan Kuil!)">
+              <span class="text-[10px] font-mono uppercase text-rose-300 font-bold hidden sm:inline">Darah:</span>
+              <div id="heartsContainer" class="flex items-center gap-0.5 text-xs sm:text-sm text-rose-500 select-none">
+                <span id="heart1">❤️</span>
+                <span id="heart2">❤️</span>
+                <span id="heart3">❤️</span>
+              </div>
             </div>
 
             <!-- 2 Torches -->
@@ -746,8 +756,8 @@
         <canvas id="gameCanvas"></canvas>
         
         <!-- Controls Legend Overlay -->
-        <div class="absolute top-3 left-3 bg-temple-900/80 backdrop-blur-sm border border-slate-700 px-3 py-1.5 rounded-lg text-[11px] font-mono text-slate-300 hidden sm:flex items-center gap-2">
-          <span>⌨️ Bergerak: <strong class="text-amber-300">W, A, S, D / Panah</strong> | Dekati Prasasti: <strong class="text-amber-300">E / Spasi</strong></span>
+        <div class="absolute top-3 left-3 bg-temple-900/85 backdrop-blur-sm border border-slate-700 px-3 py-1.5 rounded-lg text-[11px] font-mono text-slate-300 hidden sm:flex items-center gap-2 shadow-lg">
+          <span>⌨️ Bergerak: <strong class="text-amber-300">W, A, S, D / Panah</strong> | Dekati Prasasti: <strong class="text-amber-300">E / Spasi</strong> | <span class="text-rose-400 font-bold">⚠️ Hindari Jebakan Kuil!</span></span>
           <button id="btnToggleTouchControls" type="button" class="ml-2 px-2 py-0.5 rounded bg-temple-800 hover:bg-temple-700 text-amber-300 border border-slate-600 text-[10px] transition-colors cursor-pointer" title="Tampilkan / Sembunyikan Virtual D-Pad">
             🎮 D-Pad
           </button>

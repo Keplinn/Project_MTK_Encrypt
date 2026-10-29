@@ -7,9 +7,13 @@ Aplikasi game edukasi matematika interaktif bertema petualangan arkeologi kuil k
 
 ## 📁 Struktur File Modular
 Kode telah dipisahkan secara rapi dan modular:
-* 📄 **[`index.html`](file:///c:/Users/MKSiahaan/Documents/ProjekYangDibuat/Game%20MTK/index.html)**: Struktur antarmuka HTML5, viewport Kanvas 2D, HUD, dan dialog modal.
+* 📁 **[`assets/`](file:///c:/Users/MKSiahaan/Documents/ProjekYangDibuat/Game%20MTK/assets/)**: Asset pixel-art autentik kuil kuno:
+  * `character.png`: Lembar sprite animasi karakter arkeolog (idle napas, gerak jalan 4 arah, dan selebrasi membawa relik emas).
+  * `props.png`: Peti harta karun, kunci kuno, lempengan jebakan duri, rune listrik, dan kristal perisai.
+  * `tileset.png`: Lantai batu, dinding kuil, dan pintu kuno.
+* 📄 **[`index.html`](file:///c:/Users/MKSiahaan/Documents/ProjekYangDibuat/Game%20MTK/index.html)**: Struktur antarmuka HTML5, viewport Kanvas 2D, HUD indikator darah (❤️), dan dialog modal.
 * 🎨 **[`style.css`](file:///c:/Users/MKSiahaan/Documents/ProjekYangDibuat/Game%20MTK/style.css)**: Desain visual kuil kuno, efek api obor, partikel, getaran layar jebakan (*screen shake*), dan kontrol sentuh mobile.
-* ⚙️ **[`game.js`](file:///c:/Users/MKSiahaan/Documents/ProjekYangDibuat/Game%20MTK/game.js)**: Mesin 2D Canvas (pergerakan pemain, fisika tabrakan, pencahayaan radial obor, animasi pintu geser, bank soal enkripsi/invers matematika, serta audio synthesizer Web Audio API).
+* ⚙️ **[`game.js`](file:///c:/Users/MKSiahaan/Documents/ProjekYangDibuat/Game%20MTK/game.js)**: Mesin 2D Canvas (animasi karakter pixel-art, fisika benturan, sistem jebakan dinamis dan penalti waktu, pencahayaan radial obor, animasi pintu geser, bank soal enkripsi/invers matematika, serta audio synthesizer Web Audio API).
 * 📖 **[`README.md`](file:///c:/Users/MKSiahaan/Documents/ProjekYangDibuat/Game%20MTK/README.md)**: Dokumentasi panduan kontrol dan alur permainan.
 
 ---
@@ -45,6 +49,22 @@ Kode telah dipisahkan secara rapi dan modular:
    * Ruang pilar emas megah. Di ujung ruangan berdiri **Pintu Utama Kuil**.
    * Rumus: Komposisi kompleks $\ge 7$ kata.
    * Setelah pintu utama terbuka, karakter dapat melangkah masuk ke bilik suci dan menyentuh **Relik Suci (Golden Sun Relic)** untuk memenangkan ekspedisi!
+
+---
+
+## ⚡ Sistem Jebakan Kuil Interaktif & Darah Pemain (Real-Time Traps)
+Permainan kini semakin menantang dan memacu adrenalin dengan jebakan fisik yang aktif secara *real-time* di lantai dan dinding kuil:
+* **Darah Peneliti (3 Hati ❤️❤️❤️):** Pemain memiliki 3 nyawa/kesehatan yang terlihat di bar atas (*HUD*).
+* **Jebakan Duri Lantai (*Spike Traps*):** Lempengan besi di lantai dengan 3 fase (Aman $\rightarrow$ Peringatan Bergetar $\rightarrow$ Duri Besi Tajam Menusuk).
+* **Jebakan Sumpit/Panah Dinding (*Wall Dart Shooters*):** Nozel dinding menembakkan anak panah energi yang meluncur kencang melintasi lorong.
+* **Lempeng Energi Rune Listrik (*Arcane Shock Plates*):** Rune kuno di lantai yang mengumpulkan muatan listrik dan melepaskan cincin sengatan berkala.
+* **Bola Penjaga Melayang (*Guardian Patrol Orbs*):** Di Boss Level, bola energi pelindung kuil berpatroli bolak-balik menjaga prasasti emas.
+* **Efek & Penalti Saat Terkena Jebakan:**
+  * Getaran layar (*screen shake*), kilatan merah, dan hentakan terpental (*knockback*).
+  * Kehilangan **1 ❤️** dan penalti waktu **+10 detik** pada stopwatch ekspedisi.
+  * Masa kebal sesaat (*invulnerability iframes*) dengan animasi kedip transparan.
+  * Jika ketiga hati habis, karakter terlempar pingsan kembali ke gerbang masuk kamar kuil tersebut.
+* **Kristal Pemulihan Kuil (*Recovery Crystal & Shield*):** Kristal bersinar biru di sudut kuil yang dapat dipungut untuk memulihkan 1 ❤️ serta memberikan perisai perlindungan (*Shield Aura*) dan akselerasi lari selama 4 detik!
 
 ---
 

@@ -179,6 +179,71 @@ class AncientAudioEngine {
       offset += item.d;
     });
   }
+
+  playPlayerHurt() {
+    if (this.muted || !this.ctx) return;
+    const now = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(180, now);
+    osc.frequency.exponentialRampToValueAtTime(45, now + 0.22);
+    gain.gain.setValueAtTime(0.35, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.22);
+  }
+
+  playDartShoot() {
+    if (this.muted || !this.ctx) return;
+    const now = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(580, now);
+    osc.frequency.exponentialRampToValueAtTime(160, now + 0.1);
+    gain.gain.setValueAtTime(0.22, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.1);
+  }
+
+  playSpikeTrigger() {
+    if (this.muted || !this.ctx) return;
+    const now = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'square';
+    osc.frequency.setValueAtTime(260, now);
+    osc.frequency.exponentialRampToValueAtTime(90, now + 0.14);
+    gain.gain.setValueAtTime(0.2, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.14);
+  }
+
+  playGemCollect() {
+    if (this.muted || !this.ctx) return;
+    const now = this.ctx.currentTime;
+    [784, 1174].forEach((freq, idx) => {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+      gain.gain.setValueAtTime(0.2, now + idx * 0.08);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.35);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(now + idx * 0.08);
+      osc.stop(now + idx * 0.08 + 0.35);
+    });
+  }
 }
 
 const sound = new AncientAudioEngine();
@@ -333,6 +398,8 @@ const gameState = {
   currentDoor: 1, // 1 to 4
   doorOpen: false, // Is active door unlocked and open?
   torches: 2, // 2 chances per door
+  playerHp: 3,
+  maxHp: 3,
   hintUsed: false,
   trapResetsCount: 0,
   startTime: null,
@@ -393,7 +460,7 @@ function closeActiveModalOnEscape() {
   return false;
 }
 
-// --- 5. 2D ENGINE (PLAYER, MAP, PARTICLES & LIGHTING) ---
+// --- 5. 2D ENGINE (PLAYER, MAP, PARTICLES, TRAPS & LIGHTING) ---
 const VIRTUAL_WIDTH = 960;
 const VIRTUAL_HEIGHT = 540;
 let canvas = document.getElementById('gameCanvas');
@@ -411,18 +478,70 @@ function ensureCanvas() {
 }
 ensureCanvas();
 
+// --- 5.1 PIXEL ART ASSET LOADER ---
+const characterImg = new Image();
+characterImg.src = 'assets/character.png';
+let characterImgLoaded = false;
+characterImg.onload = () => { characterImgLoaded = true; };
+
+const propsImg = new Image();
+propsImg.src = 'assets/props.png';
+let propsImgLoaded = false;
+propsImg.onload = () => { propsImgLoaded = true; };
+
+const tilesetImg = new Image();
+tilesetImg.src = 'assets/tileset.png';
+let tilesetImgLoaded = false;
+tilesetImg.onload = () => { tilesetImgLoaded = true; };
+
+// Trap System & FX State
+let screenShake = 0;
+let redDamageFlash = 0;
+let trapClock = 0;
+let activeDarts = [];
+let floatingNotices = [];
+
+function addFloatingNotice(text, x, y, color = '#ef4444') {
+  floatingNotices.push({
+    text: text,
+    x: x,
+    y: y,
+    vy: -1.2,
+    life: 1.0,
+    color: color
+  });
+}
+
+function updateHUDHealth() {
+  const container = document.getElementById('heartsContainer');
+  if (!container) return;
+  let html = '';
+  for (let i = 1; i <= gameState.maxHp; i++) {
+    if (i <= gameState.playerHp) {
+      html += '<span class="inline-block transform hover:scale-125 transition-transform text-rose-500 drop-shadow-[0_0_6px_rgba(244,63,94,0.6)]">❤️</span>';
+    } else {
+      html += '<span class="inline-block text-slate-600 opacity-40 scale-90">🖤</span>';
+    }
+  }
+  container.innerHTML = html;
+}
+
 // Archaeologist 2D Player Character
 const player = {
   x: 480,
   y: 430,
-  width: 28,
-  height: 38,
+  width: 26,
+  height: 34,
   speed: 3.8,
   vx: 0,
   vy: 0,
   direction: 'up', // 'up', 'down', 'left', 'right'
   animStep: 0,
+  idleTimer: 0,
   isMoving: false,
+  invulnerableTimer: 0,
+  shieldTimer: 0,
+  hasShield: false,
   torchFlicker: 1,
   color: '#d4b483'
 };
@@ -461,7 +580,7 @@ function addParticles(x, y, count, color, speedMultiplier = 1) {
 }
 
 // Chamber Layout Definitions
-// Each chamber has dimensions 960x540 with walls, pillars, torches, and the door
+// Each chamber has dimensions 960x540 with walls, pillars, torches, traps, and the door
 const chamberMaps = {
   1: {
     title: "Chamber 1: Gerbang Luar Kuil",
@@ -485,6 +604,11 @@ const chamberMaps = {
       { x: 840, y: 100 },
       { x: 380, y: 70 },
       { x: 580, y: 70 }
+    ],
+    traps: [
+      { type: 'spike', x: 340, y: 280, w: 38, h: 38, period: 180, offset: 0 },
+      { type: 'spike', x: 620, y: 280, w: 38, h: 38, period: 180, offset: 90 },
+      { type: 'gem', x: 480, y: 330, collected: false }
     ]
   },
   2: {
@@ -512,6 +636,13 @@ const chamberMaps = {
       { x: 860, y: 380 },
       { x: 380, y: 70 },
       { x: 580, y: 70 }
+    ],
+    traps: [
+      { type: 'spike', x: 370, y: 220, w: 38, h: 38, period: 160, offset: 0 },
+      { type: 'spike', x: 590, y: 220, w: 38, h: 38, period: 160, offset: 80 },
+      { type: 'spike', x: 480, y: 390, w: 38, h: 38, period: 160, offset: 40 },
+      { type: 'dartShooter', wall: 'left', x: 70, y: 320, dir: 1, interval: 140, timer: 70 },
+      { type: 'gem', x: 160, y: 260, collected: false }
     ]
   },
   3: {
@@ -538,6 +669,15 @@ const chamberMaps = {
       { x: 850, y: 100 },
       { x: 380, y: 70 },
       { x: 580, y: 70 }
+    ],
+    traps: [
+      { type: 'runeShock', x: 330, y: 380, runeCol: 1, radius: 36, period: 160, offset: 0 },
+      { type: 'runeShock', x: 630, y: 380, runeCol: 4, radius: 36, period: 160, offset: 80 },
+      { type: 'spike', x: 480, y: 235, w: 38, h: 38, period: 140, offset: 30 },
+      { type: 'spike', x: 480, y: 340, w: 38, h: 38, period: 140, offset: 100 },
+      { type: 'dartShooter', wall: 'left', x: 70, y: 200, dir: 1, interval: 150, timer: 20 },
+      { type: 'dartShooter', wall: 'right', x: 890, y: 300, dir: -1, interval: 150, timer: 95 },
+      { type: 'gem', x: 480, y: 440, collected: false }
     ]
   },
   4: {
@@ -566,6 +706,18 @@ const chamberMaps = {
       { x: 600, y: 150 },
       { x: 410, y: 70 },
       { x: 550, y: 70 }
+    ],
+    traps: [
+      { type: 'patrolOrb', x: 280, y: 340, minX: 230, maxX: 730, speed: 2.5, dir: 1, radius: 18 },
+      { type: 'patrolOrb', x: 680, y: 410, minX: 200, maxX: 760, speed: -2.8, dir: -1, radius: 18 },
+      { type: 'spike', x: 400, y: 260, w: 38, h: 38, period: 130, offset: 0 },
+      { type: 'spike', x: 560, y: 260, w: 38, h: 38, period: 130, offset: 65 },
+      { type: 'spike', x: 480, y: 360, w: 38, h: 38, period: 130, offset: 35 },
+      { type: 'dartShooter', wall: 'left', x: 70, y: 210, dir: 1, interval: 130, timer: 30 },
+      { type: 'dartShooter', wall: 'right', x: 890, y: 210, dir: -1, interval: 130, timer: 95 },
+      { type: 'runeShock', x: 380, y: 105, runeCol: 5, radius: 28, period: 120, offset: 0 },
+      { type: 'runeShock', x: 580, y: 105, runeCol: 2, radius: 28, period: 120, offset: 60 },
+      { type: 'gem', x: 150, y: 280, collected: false }
     ]
   }
 };
@@ -581,10 +733,29 @@ function setChamber(doorIndex, resetPlayerPos = true) {
   gameState.torches = 2;
   updateTorchUI();
 
+  gameState.playerHp = gameState.maxHp;
+  updateHUDHealth();
+  activeDarts = [];
+  floatingNotices = [];
+
+  // Reset trap items in target chamber
+  const map = chamberMaps[doorIndex];
+  if (map && map.traps) {
+    map.traps.forEach(t => {
+      if (t.type === 'gem') t.collected = false;
+      if (t.type === 'dartShooter') t.timer = 0;
+    });
+  }
+
   if (resetPlayerPos) {
     player.x = 480;
     player.y = 440;
+    player.vx = 0;
+    player.vy = 0;
     player.direction = 'up';
+    player.invulnerableTimer = 0;
+    player.hasShield = false;
+    player.shieldTimer = 0;
   }
 
   // Update HUD
@@ -675,6 +846,27 @@ function updatePlayer() {
     return;
   }
 
+  // Knockback physics
+  if (Math.abs(player.vx) > 0.05 || Math.abs(player.vy) > 0.05) {
+    const nextX = player.x + player.vx;
+    const nextY = player.y + player.vy;
+    if (!checkCollision(nextX, player.y)) player.x = nextX;
+    if (!checkCollision(player.x, nextY)) player.y = nextY;
+    player.vx *= 0.82;
+    player.vy *= 0.82;
+  }
+
+  if (player.invulnerableTimer > 0) {
+    player.invulnerableTimer--;
+  }
+
+  if (player.shieldTimer > 0) {
+    player.shieldTimer--;
+    if (player.shieldTimer <= 0) {
+      player.hasShield = false;
+    }
+  }
+
   let moveX = 0;
   let moveY = 0;
 
@@ -685,6 +877,7 @@ function updatePlayer() {
 
   if (moveX !== 0 || moveY !== 0) {
     player.isMoving = true;
+    player.idleTimer = 0;
     // Normalize diagonal
     if (moveX !== 0 && moveY !== 0) {
       moveX *= 0.7071;
@@ -697,8 +890,9 @@ function updatePlayer() {
       player.direction = moveY > 0 ? 'down' : 'up';
     }
 
-    const nextX = player.x + moveX * player.speed;
-    const nextY = player.y + moveY * player.speed;
+    const curSpeed = player.speed * (player.hasShield ? 1.25 : 1.0);
+    const nextX = player.x + moveX * curSpeed;
+    const nextY = player.y + moveY * curSpeed;
 
     if (!checkCollision(nextX, player.y)) {
       player.x = nextX;
@@ -707,12 +901,26 @@ function updatePlayer() {
       player.y = nextY;
     }
 
-    player.animStep += 0.18;
+    player.animStep += 0.16;
     if (Math.floor(player.animStep) % 3 === 0) {
       sound.playStep();
     }
+    // Subtle dust particles while running
+    if (Math.random() < 0.2) {
+      particles.push({
+        x: player.x + (Math.random() - 0.5) * 8,
+        y: player.y + 14,
+        vx: -moveX * 0.4 + (Math.random() - 0.5) * 0.4,
+        vy: -moveY * 0.4 + (Math.random() - 0.5) * 0.4,
+        life: 0.5,
+        decay: 0.04,
+        size: Math.random() * 2 + 1,
+        color: 'rgba(212, 180, 131, 0.35)'
+      });
+    }
   } else {
     player.isMoving = false;
+    player.idleTimer = (player.idleTimer || 0) + 1;
   }
 
   // Door Slide Animation
@@ -744,10 +952,393 @@ function updatePlayer() {
   }
 }
 
+// Trap Damage & Penalty Handler
+function hitPlayerByTrap(type, knockbackAngle) {
+  if (gameState.isFinished || isAnyModalOpen()) return;
+
+  if (player.hasShield) {
+    player.hasShield = false;
+    player.shieldTimer = 0;
+    player.invulnerableTimer = 35;
+    sound.playStoneDoor();
+    addParticles(player.x, player.y, 20, '#38bdf8', 2.5);
+    addFloatingNotice('🛡️ PERISAI MENANGKIS!', player.x, player.y - 25, '#38bdf8');
+    screenShake = 6;
+    return;
+  }
+
+  if (player.invulnerableTimer > 0) return;
+
+  sound.playPlayerHurt();
+  screenShake = 14;
+  redDamageFlash = 0.45;
+  player.invulnerableTimer = 75; // 1.25 detik invulnerability
+  gameState.playerHp = Math.max(0, gameState.playerHp - 1);
+  updateHUDHealth();
+
+  // Apply knockback away from trap
+  player.vx = Math.cos(knockbackAngle) * 6;
+  player.vy = Math.sin(knockbackAngle) * 6;
+
+  // Add 10 seconds penalty to expedition time
+  gameState.elapsedMs += 10000;
+  gameState.startTime -= 10000;
+  updateStopwatchDisplay();
+
+  gameState.trapResetsCount++;
+  const statResets = document.getElementById('statTrapResets');
+  if (statResets) statResets.textContent = `${gameState.trapResetsCount} Kali`;
+
+  addParticles(player.x, player.y, 20, '#ef4444', 2.2);
+  addFloatingNotice('⚠️ -1 ❤️ (+10s PENALTI)', player.x, player.y - 25, '#ef4444');
+
+  if (gameState.playerHp <= 0) {
+    // Player knocked out by traps!
+    sound.playTrapCrumble();
+    screenShake = 22;
+    redDamageFlash = 0.7;
+    addParticles(player.x, player.y, 45, '#f97316', 3.0);
+    addFloatingNotice('KEMBALI KE PINTU MASUK!', 480, 240, '#fde047');
+
+    // Respawn safely at chamber entrance
+    player.x = 480;
+    player.y = 440;
+    player.vx = 0;
+    player.vy = 0;
+    player.direction = 'up';
+    gameState.playerHp = gameState.maxHp;
+    updateHUDHealth();
+  }
+}
+
+// Update and Draw Traps, Hazards & Collectibles
+function updateAndDrawTraps(ctx) {
+  const map = chamberMaps[gameState.currentDoor];
+  if (!map || !map.traps) return;
+
+  trapClock++;
+
+  // Update & Render Traps
+  map.traps.forEach(trap => {
+    if (trap.type === 'spike') {
+      const t = (trapClock + trap.offset) % trap.period;
+      const isWarning = t >= trap.period - 70 && t < trap.period - 35;
+      const isActive = t >= trap.period - 35;
+
+      ctx.save();
+      let shakeX = 0;
+      let shakeY = 0;
+      if (isWarning) {
+        shakeX = Math.sin(trapClock * 1.5) * 1.5;
+        shakeY = Math.cos(trapClock * 1.5) * 1.5;
+        if (trapClock % 12 === 0) {
+          addParticles(trap.x, trap.y, 2, '#f59e0b', 0.8);
+        }
+      }
+
+      const px = trap.x + shakeX;
+      const py = trap.y + shakeY;
+
+      // Floor Plate Frame
+      if (propsImgLoaded) {
+        ctx.imageSmoothingEnabled = false;
+        const frameSx = isActive ? 0 : (isWarning ? 32 : 96);
+        ctx.drawImage(propsImg, frameSx, 64, 32, 32, px - 19, py - 19, 38, 38);
+      } else {
+        ctx.fillStyle = isActive ? '#450a0a' : (isWarning ? '#78350f' : '#1e263d');
+        ctx.fillRect(px - 19, py - 19, 38, 38);
+        ctx.strokeStyle = isActive ? '#ef4444' : (isWarning ? '#f59e0b' : '#475569');
+        ctx.lineWidth = 2;
+        ctx.strokeRect(px - 19, py - 19, 38, 38);
+      }
+
+      // Safe state perforations
+      if (!isActive && !isWarning) {
+        ctx.fillStyle = '#0a0d14';
+        const holeOffsets = [[-8, -8], [8, -8], [-8, 8], [8, 8], [0, 0]];
+        holeOffsets.forEach(([ox, oy]) => {
+          ctx.fillRect(px + ox - 2, py + oy - 2, 4, 4);
+        });
+      }
+
+      // Warning state indicator
+      if (isWarning) {
+        ctx.fillStyle = 'rgba(245, 158, 11, 0.35)';
+        ctx.fillRect(px - 17, py - 17, 34, 34);
+        ctx.fillStyle = '#fde047';
+        ctx.font = 'bold 11px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('!', px, py + 4);
+      }
+
+      // Active state: Sharp iron spikes extended
+      if (isActive) {
+        ctx.fillStyle = 'rgba(239, 68, 68, 0.25)';
+        ctx.fillRect(px - 18, py - 18, 36, 36);
+
+        const spikeOffsets = [[-9, -9], [9, -9], [-9, 9], [9, 9], [0, 0]];
+        spikeOffsets.forEach(([ox, oy]) => {
+          const sx = px + ox;
+          const sy = py + oy;
+          ctx.beginPath();
+          ctx.moveTo(sx - 4, sy + 6);
+          ctx.lineTo(sx, sy - 11);
+          ctx.lineTo(sx + 4, sy + 6);
+          ctx.closePath();
+          const spikeGrad = ctx.createLinearGradient(sx - 4, sy, sx + 4, sy);
+          spikeGrad.addColorStop(0, '#94a3b8');
+          spikeGrad.addColorStop(0.5, '#f8fafc');
+          spikeGrad.addColorStop(1, '#475569');
+          ctx.fillStyle = spikeGrad;
+          ctx.fill();
+          ctx.strokeStyle = '#dc2626';
+          ctx.lineWidth = 1;
+          ctx.stroke();
+
+          // Glint
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(sx - 1, sy - 11, 2, 3);
+        });
+
+        // Collision check with player
+        const dist = Math.hypot(player.x - trap.x, player.y - trap.y);
+        if (dist < 26) {
+          hitPlayerByTrap('spike', Math.atan2(player.y - trap.y, player.x - trap.x));
+        }
+      }
+
+      ctx.restore();
+
+    } else if (trap.type === 'dartShooter') {
+      trap.timer = (trap.timer || 0) + 1;
+      if (trap.timer >= trap.interval) {
+        trap.timer = 0;
+        sound.playDartShoot();
+        addParticles(trap.x, trap.y, 6, '#38bdf8', 1.5);
+        activeDarts.push({
+          x: trap.x,
+          y: trap.y,
+          vx: trap.dir * 5.5,
+          vy: 0,
+          life: 180
+        });
+      }
+
+      // Draw Wall Dispenser Aperture
+      ctx.save();
+      ctx.fillStyle = '#1e263d';
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 2;
+      const dispX = trap.dir > 0 ? trap.x - 14 : trap.x - 6;
+      ctx.fillRect(dispX, trap.y - 10, 20, 20);
+      ctx.strokeRect(dispX, trap.y - 10, 20, 20);
+
+      // Glowing nozzle hole
+      ctx.fillStyle = (trap.timer > trap.interval - 25) ? '#f43f5e' : '#0284c7';
+      ctx.beginPath();
+      ctx.arc(trap.dir > 0 ? trap.x + 2 : trap.x - 2, trap.y, 4.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+
+    } else if (trap.type === 'runeShock') {
+      const t = (trapClock + trap.offset) % trap.period;
+      const isCharging = t >= trap.period - 55 && t < trap.period - 20;
+      const isBurst = t >= trap.period - 20;
+
+      ctx.save();
+      const runeCol = trap.runeCol || 0;
+      if (propsImgLoaded) {
+        ctx.imageSmoothingEnabled = false;
+        ctx.drawImage(propsImg, runeCol * 32, 32, 32, 32, trap.x - 18, trap.y - 18, 36, 36);
+      } else {
+        ctx.fillStyle = '#1e263d';
+        ctx.fillRect(trap.x - 18, trap.y - 18, 36, 36);
+        ctx.strokeStyle = '#a855f7';
+        ctx.strokeRect(trap.x - 18, trap.y - 18, 36, 36);
+      }
+
+      if (isCharging) {
+        const chargeRatio = (t - (trap.period - 55)) / 35;
+        ctx.strokeStyle = `rgba(168, 85, 247, ${chargeRatio})`;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(trap.x, trap.y, trap.radius * chargeRatio, 0, Math.PI * 2);
+        ctx.stroke();
+
+        if (Math.random() < 0.4) {
+          addParticles(trap.x + (Math.random() - 0.5) * 20, trap.y + (Math.random() - 0.5) * 20, 2, '#c084fc', 1.2);
+        }
+      }
+
+      if (isBurst) {
+        ctx.strokeStyle = '#ec4899';
+        ctx.shadowColor = '#d946ef';
+        ctx.shadowBlur = 16;
+        ctx.lineWidth = 3.5;
+        ctx.beginPath();
+        ctx.arc(trap.x, trap.y, trap.radius, 0, Math.PI * 2);
+        ctx.stroke();
+
+        ctx.fillStyle = 'rgba(236, 72, 153, 0.25)';
+        ctx.beginPath();
+        ctx.arc(trap.x, trap.y, trap.radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        if (Math.hypot(player.x - trap.x, player.y - trap.y) < trap.radius + 12) {
+          hitPlayerByTrap('runeShock', Math.atan2(player.y - trap.y, player.x - trap.x));
+        }
+      }
+      ctx.restore();
+
+    } else if (trap.type === 'patrolOrb') {
+      trap.x += trap.speed;
+      if (trap.x <= trap.minX) {
+        trap.x = trap.minX;
+        trap.speed = Math.abs(trap.speed);
+      } else if (trap.x >= trap.maxX) {
+        trap.x = trap.maxX;
+        trap.speed = -Math.abs(trap.speed);
+      }
+
+      ctx.save();
+      const orbPulse = Math.sin(trapClock * 0.1) * 2;
+      ctx.shadowColor = '#f59e0b';
+      ctx.shadowBlur = 18;
+      ctx.fillStyle = '#b45309';
+      ctx.beginPath();
+      ctx.arc(trap.x, trap.y, trap.radius + orbPulse, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#fde047';
+      ctx.beginPath();
+      ctx.arc(trap.x, trap.y, trap.radius * 0.6, 0, Math.PI * 2);
+      ctx.fill();
+
+      const satAngle = trapClock * 0.08;
+      for (let s = 0; s < 3; s++) {
+        const a = satAngle + (s * Math.PI * 2 / 3);
+        const sx = trap.x + Math.cos(a) * (trap.radius + 10);
+        const sy = trap.y + Math.sin(a) * (trap.radius + 10);
+        ctx.fillStyle = '#ef4444';
+        ctx.beginPath();
+        ctx.arc(sx, sy, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+
+      if (Math.hypot(player.x - trap.x, player.y - trap.y) < trap.radius + 14) {
+        hitPlayerByTrap('patrolOrb', Math.atan2(player.y - trap.y, player.x - trap.x));
+      }
+
+    } else if (trap.type === 'gem') {
+      if (!trap.collected) {
+        ctx.save();
+        const bobY = Math.sin(trapClock * 0.08) * 4;
+        const gx = trap.x;
+        const gy = trap.y + bobY;
+
+        const gGrad = ctx.createRadialGradient(gx, gy, 2, gx, gy, 24);
+        gGrad.addColorStop(0, 'rgba(56, 189, 248, 0.4)');
+        gGrad.addColorStop(1, 'rgba(56, 189, 248, 0)');
+        ctx.fillStyle = gGrad;
+        ctx.beginPath();
+        ctx.arc(gx, gy, 24, 0, Math.PI * 2);
+        ctx.fill();
+
+        if (propsImgLoaded) {
+          ctx.imageSmoothingEnabled = false;
+          ctx.drawImage(propsImg, 64, 64, 32, 32, gx - 14, gy - 14, 28, 28);
+        } else {
+          ctx.fillStyle = '#38bdf8';
+          ctx.beginPath();
+          ctx.arc(gx, gy, 10, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        ctx.fillStyle = '#7dd3fc';
+        ctx.font = 'bold 9px "Cinzel", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('KRISTAL KUIL', gx, gy - 16);
+        ctx.restore();
+
+        if (Math.hypot(player.x - gx, player.y - gy) < 24) {
+          trap.collected = true;
+          sound.playGemCollect();
+          gameState.playerHp = Math.min(gameState.maxHp, gameState.playerHp + 1);
+          updateHUDHealth();
+          player.hasShield = true;
+          player.shieldTimer = 240;
+          addParticles(gx, gy, 25, '#38bdf8', 2.5);
+          addFloatingNotice('+1 ❤️ PERISAI KUIL!', player.x, player.y - 25, '#38bdf8');
+        }
+      }
+    }
+  });
+
+  // Update & Draw Active Darts
+  for (let d = activeDarts.length - 1; d >= 0; d--) {
+    const dart = activeDarts[d];
+    dart.x += dart.vx;
+    dart.life--;
+
+    ctx.save();
+    ctx.strokeStyle = '#38bdf8';
+    ctx.lineWidth = 2.5;
+    ctx.shadowColor = '#38bdf8';
+    ctx.shadowBlur = 8;
+    ctx.beginPath();
+    ctx.moveTo(dart.x - dart.vx * 2, dart.y);
+    ctx.lineTo(dart.x, dart.y);
+    ctx.stroke();
+
+    ctx.fillStyle = '#f8fafc';
+    ctx.beginPath();
+    ctx.arc(dart.x, dart.y, 3, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+
+    if (Math.random() < 0.4) {
+      particles.push({
+        x: dart.x,
+        y: dart.y,
+        vx: -dart.vx * 0.1,
+        vy: (Math.random() - 0.5) * 0.5,
+        life: 0.4,
+        decay: 0.05,
+        size: 2,
+        color: '#38bdf8'
+      });
+    }
+
+    if (Math.hypot(player.x - dart.x, player.y - dart.y) < 20) {
+      activeDarts.splice(d, 1);
+      addParticles(dart.x, dart.y, 14, '#38bdf8', 2);
+      hitPlayerByTrap('dart', dart.vx > 0 ? 0 : Math.PI);
+      continue;
+    }
+
+    if (dart.x < 70 || dart.x > 890 || dart.life <= 0) {
+      activeDarts.splice(d, 1);
+      addParticles(dart.x, dart.y, 8, '#94a3b8', 1.2);
+    }
+  }
+}
+
 // Render 2D World
 function renderGame() {
   ensureCanvas();
   if (!ctx) return;
+
+  ctx.save();
+  // Screen Shake FX on trap hit
+  if (screenShake > 0) {
+    const shakeX = (Math.random() - 0.5) * screenShake;
+    const shakeY = (Math.random() - 0.5) * screenShake;
+    ctx.translate(shakeX, shakeY);
+    screenShake *= 0.86;
+    if (screenShake < 0.4) screenShake = 0;
+  }
+
   ctx.clearRect(0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
   const map = chamberMaps[gameState.currentDoor];
 
@@ -894,8 +1485,10 @@ function renderGame() {
     ctx.fillText(gameState.currentDoor === 4 ? '🔒 PINTU RELIK SUCI' : '🔒 SANDI KUIL', map.doorX + map.doorW / 2, map.doorY + map.doorH / 2 + 5);
   }
 
+  // 5. Chamber Traps, Hazards & Collectibles
+  updateAndDrawTraps(ctx);
 
-  // 5. Inscription Pedestal / Monolith
+  // 6. Inscription Pedestal / Monolith
   // Shadow
   ctx.beginPath();
   ctx.ellipse(map.pedestalX, map.pedestalY + 14, 28, 12, 0, 0, Math.PI * 2);
@@ -906,16 +1499,30 @@ function renderGame() {
   ctx.fillStyle = '#1a2238';
   ctx.strokeStyle = '#eab308';
   ctx.lineWidth = 2;
-  ctx.fillRect(map.pedestalX - 22, map.pedestalY - 14, 44, 28);
-  ctx.strokeRect(map.pedestalX - 22, map.pedestalY - 14, 44, 28);
+  ctx.fillRect(map.pedestalX - 24, map.pedestalY - 14, 48, 28);
+  ctx.strokeRect(map.pedestalX - 24, map.pedestalY - 14, 48, 28);
+
+  // Chest from propsImg on Pedestal
+  if (propsImgLoaded) {
+    ctx.imageSmoothingEnabled = false;
+    if (gameState.doorOpen) {
+      // Open chest with glowing key above it
+      ctx.drawImage(propsImg, 128, 0, 32, 32, map.pedestalX - 16, map.pedestalY - 26, 32, 32);
+      const keyBob = Math.sin(Date.now() * 0.006) * 4;
+      ctx.drawImage(propsImg, 160, 0, 32, 32, map.pedestalX - 16, map.pedestalY - 48 + keyBob, 32, 32);
+    } else {
+      // Closed chest
+      ctx.drawImage(propsImg, 96, 0, 32, 32, map.pedestalX - 16, map.pedestalY - 26, 32, 32);
+    }
+  }
 
   // Glowing Inscription Plate
   ctx.fillStyle = gameState.doorOpen ? '#10b981' : '#f59e0b';
   ctx.font = 'bold 9px "JetBrains Mono"';
   ctx.textAlign = 'center';
-  ctx.fillText(gameState.doorOpen ? 'TERBUKA' : 'PRASASTI', map.pedestalX, map.pedestalY + 3);
+  ctx.fillText(gameState.doorOpen ? 'TERBUKA' : 'PRASASTI', map.pedestalX, map.pedestalY + 8);
 
-  // 6. Sacred Relic (in Chamber 4 beyond door)
+  // 7. Sacred Relic (in Chamber 4 beyond door)
   if (gameState.currentDoor === 4 && map.relicX) {
     ctx.save();
     // Relic Pedestal
@@ -934,11 +1541,15 @@ function renderGame() {
     ctx.restore();
   }
 
-  // 7. Wall Torches with Animated Flames
+  // 8. Wall Torches with Animated Flames
   map.wallTorches.forEach((torch, index) => {
-    // Sconce fixture
-    ctx.fillStyle = '#78350f';
-    ctx.fillRect(torch.x - 3, torch.y - 4, 6, 12);
+    if (propsImgLoaded) {
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(propsImg, 128, 64, 32, 32, torch.x - 16, torch.y - 18, 32, 32);
+    } else {
+      ctx.fillStyle = '#78350f';
+      ctx.fillRect(torch.x - 3, torch.y - 4, 6, 12);
+    }
 
     // Flickering Flame
     const flicker = Math.sin(Date.now() * 0.008 + index) * 2;
@@ -953,16 +1564,36 @@ function renderGame() {
     ctx.fill();
   });
 
-  // 8. Draw Player Archaeologist Character
+  // 9. Draw Player Archaeologist Character
   drawPlayer(ctx);
 
-  // 9. Torchlight Illumination & Darkness Fog of War
+  // 10. Torchlight Illumination & Darkness Fog of War
   drawTorchLighting(ctx);
 
-  // 10. Update & Render Particles
+  // 11. Floating Damage & Item Notices
+  for (let i = floatingNotices.length - 1; i >= 0; i--) {
+    const fn = floatingNotices[i];
+    fn.y += fn.vy;
+    fn.life -= 0.02;
+    if (fn.life <= 0) {
+      floatingNotices.splice(i, 1);
+    } else {
+      ctx.save();
+      ctx.globalAlpha = Math.min(1, fn.life * 1.5);
+      ctx.font = 'bold 12px "Cinzel", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#0a0d14';
+      ctx.fillText(fn.text, fn.x + 1, fn.y + 1);
+      ctx.fillStyle = fn.color;
+      ctx.fillText(fn.text, fn.x, fn.y);
+      ctx.restore();
+    }
+  }
+
+  // 12. Update & Render Particles
   updateAndDrawParticles(ctx);
 
-  // 11. Interaction Floating Prompt
+  // 13. Interaction Floating Prompt
   const distToPedestal = Math.hypot(player.x - map.pedestalX, player.y - map.pedestalY);
   if (distToPedestal < 65 && !gameState.doorOpen && !gameState.isDecryptionModalOpen) {
     ctx.save();
@@ -984,9 +1615,19 @@ function renderGame() {
     ctx.fillText(promptText, map.pedestalX, map.pedestalY - 23);
     ctx.restore();
   }
+
+  // 14. Red Damage Flash Vignette FX
+  if (redDamageFlash > 0) {
+    ctx.fillStyle = `rgba(239, 68, 68, ${redDamageFlash})`;
+    ctx.fillRect(0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
+    redDamageFlash -= 0.025;
+    if (redDamageFlash < 0) redDamageFlash = 0;
+  }
+
+  ctx.restore();
 }
 
-// Draw Player Archaeologist with Hat, Backpack & Lit Torch
+// Draw Player Character using Authentic Pixel Art Spritesheet
 function drawPlayer(ctx) {
   ctx.save();
   const px = player.x;
@@ -998,17 +1639,90 @@ function drawPlayer(ctx) {
   ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
   ctx.fill();
 
-  // Animated Walk Sway
+  // Shield Bubble Aura if active
+  if (player.hasShield) {
+    ctx.save();
+    const shieldPulse = Math.sin(Date.now() * 0.01) * 3;
+    ctx.strokeStyle = 'rgba(56, 189, 248, 0.8)';
+    ctx.lineWidth = 2.5;
+    ctx.shadowColor = '#38bdf8';
+    ctx.shadowBlur = 12;
+    ctx.beginPath();
+    ctx.arc(px, py - 4, 25 + shieldPulse, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(56, 189, 248, 0.15)';
+    ctx.fill();
+    ctx.restore();
+  }
+
+  // Invulnerability Blinking
+  if (player.invulnerableTimer > 0) {
+    if (Math.floor(player.invulnerableTimer / 4) % 2 === 0) {
+      ctx.globalAlpha = 0.35;
+    }
+  }
+
+  if (characterImgLoaded) {
+    let animRow = 0;
+    let animCol = 0;
+    let maxFrames = 4;
+
+    if (gameState.doorOpen || gameState.isFinished) {
+      // Celebrating / Holding Relic (Rows 16-19)
+      maxFrames = 6;
+      if (player.direction === 'down') animRow = 16;
+      else if (player.direction === 'up') animRow = 17;
+      else if (player.direction === 'left') animRow = 18;
+      else if (player.direction === 'right') animRow = 19;
+      animCol = Math.floor(player.animStep) % maxFrames;
+    } else if (player.isMoving) {
+      // Walking animation (Rows 4-7)
+      maxFrames = 6;
+      if (player.direction === 'down') animRow = 4;
+      else if (player.direction === 'up') animRow = 5;
+      else if (player.direction === 'left') animRow = 6;
+      else if (player.direction === 'right') animRow = 7;
+      animCol = Math.floor(player.animStep) % maxFrames;
+    } else {
+      // Idle breathing animation (Rows 0-3)
+      maxFrames = 4;
+      if (player.direction === 'down') animRow = 0;
+      else if (player.direction === 'up') animRow = 1;
+      else if (player.direction === 'left') animRow = 2;
+      else if (player.direction === 'right') animRow = 3;
+      animCol = Math.floor((player.idleTimer || 0) / 16) % maxFrames;
+    }
+
+    const drawW = 46;
+    const drawH = 46;
+    const destX = Math.round(px - drawW / 2);
+    const destY = Math.round(py - drawH / 2 - 4);
+
+    ctx.imageSmoothingEnabled = false; // Pixel-perfect rendering
+    ctx.drawImage(
+      characterImg,
+      animCol * 32, animRow * 32, 32, 32,
+      destX, destY, drawW, drawH
+    );
+  } else {
+    drawFallbackPlayer(ctx, px, py);
+  }
+
+  ctx.restore();
+}
+
+// Procedural Fallback Character (used if asset image is still downloading)
+function drawFallbackPlayer(ctx, px, py) {
   const sway = player.isMoving ? Math.sin(player.animStep) * 2.5 : 0;
   const legCycle = player.isMoving ? Math.sin(player.animStep) * 4 : 0;
 
   // Legs / Trousers
-  ctx.fillStyle = '#451a03'; // Khaki / Brown explorer trousers
+  ctx.fillStyle = '#451a03';
   ctx.fillRect(px - 7, py + 8 + legCycle, 5, 8);
   ctx.fillRect(px + 2, py + 8 - legCycle, 5, 8);
 
   // Body / Explorer Jacket
-  ctx.fillStyle = '#78350f'; // Leather safari jacket
+  ctx.fillStyle = '#78350f';
   ctx.fillRect(px - 9, py - 4 + sway * 0.3, 18, 14);
 
   // Backpack on back
@@ -1029,39 +1743,12 @@ function drawPlayer(ctx) {
 
   // Explorer Fedora Hat
   ctx.fillStyle = '#451a03';
-  // Hat Brim
   ctx.beginPath();
   ctx.ellipse(px, py - 11, 13, 5, 0, 0, Math.PI * 2);
   ctx.fill();
-  // Hat Crown
   ctx.fillRect(px - 6, py - 18, 12, 8);
-  ctx.fillStyle = '#eab308'; // Golden hatband
+  ctx.fillStyle = '#eab308';
   ctx.fillRect(px - 6, py - 12, 12, 2.5);
-
-  // Held Torch in Hand
-  let torchHandX = px + 12;
-  let torchHandY = py - 4;
-  if (player.direction === 'left') {
-    torchHandX = px - 12;
-  }
-
-  // Torch wood stick
-  ctx.fillStyle = '#78350f';
-  ctx.fillRect(torchHandX - 2, torchHandY - 4, 4, 12);
-
-  // Torch Animated Flame
-  const flameFlicker = Math.sin(Date.now() * 0.015) * 2;
-  ctx.beginPath();
-  ctx.arc(torchHandX, torchHandY - 8 + flameFlicker * 0.5, 6 + flameFlicker * 0.8, 0, Math.PI * 2);
-  ctx.fillStyle = '#f97316';
-  ctx.fill();
-
-  ctx.beginPath();
-  ctx.arc(torchHandX, torchHandY - 9 + flameFlicker * 0.3, 3.5, 0, Math.PI * 2);
-  ctx.fillStyle = '#fde047';
-  ctx.fill();
-
-  ctx.restore();
 }
 
 // Atmospheric Torchlight Radial Vignette
@@ -2306,6 +2993,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initScratchpadCanvas();
   initCustomDuelListeners();
   setupTouchControls();
+  updateHUDHealth();
 
   // Keyboard Event Listeners for 2D Movement
   window.addEventListener('keydown', (e) => {
