@@ -136,144 +136,310 @@
   <!-- ================= MAIN APP VIEWPORTS ================= -->
   <main id="appContainer" class="flex-1 max-w-6xl w-full mx-auto p-3 sm:p-5 flex flex-col justify-center">
 
-    <!-- ================= VIEW 1: HOME & MODE SELECTION ================= -->
-    <section id="viewHome" class="space-y-8 py-4">
+    <!-- ================= VIEW 1: REVAMPED IMMERSIVE MAIN MENU ================= -->
+    <section id="viewHome" class="relative min-h-[75vh] flex flex-col justify-between py-6 px-3 sm:px-6 select-none overflow-hidden rounded-3xl border border-temple-600/60 bg-gradient-to-b from-temple-900/90 via-temple-950/95 to-black/95 shadow-2xl">
       
-      <!-- Hero Banner -->
-      <div class="text-center space-y-3 max-w-3xl mx-auto">
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-mono tracking-wider">
-          <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
-          GAME PETUALANGAN 2D MATEMATIKA
+      <!-- ================= DYNAMIC PARALLAX & DUST ENGINE ================= -->
+      <div id="menuParallaxWrapper" class="absolute inset-0 pointer-events-none overflow-hidden rounded-3xl">
+        <!-- Golden Dust Particles Canvas (Floating Motes) -->
+        <canvas id="goldDustCanvas"></canvas>
+
+        <!-- Deep Ruins Layer (Moves subtly with mouse) -->
+        <div id="parallaxLayerDeep" class="parallax-layer absolute -inset-6 opacity-35 bg-cover bg-center pointer-events-none" style="background-image: radial-gradient(circle at 50% 25%, rgba(249, 115, 22, 0.22) 0%, transparent 60%), radial-gradient(circle at 20% 70%, rgba(234, 179, 8, 0.12) 0%, transparent 45%), radial-gradient(circle at 80% 70%, rgba(234, 179, 8, 0.12) 0%, transparent 45%);">
+          <!-- Distant Hieroglyph & Ancient Arch Silhouettes -->
+          <div class="w-full h-full flex items-center justify-center">
+            <svg class="w-[85%] max-w-2xl h-auto text-amber-500/10 stroke-current" viewBox="0 0 800 600" fill="none">
+              <!-- Ancient Temple Gateway Arch -->
+              <path d="M150 550 V240 Q400 60 650 240 V550" stroke-width="4" stroke-dasharray="8 8"/>
+              <path d="M220 550 V270 Q400 130 580 270 V550" stroke-width="2"/>
+              <!-- Hieroglyphic Sun Disc -->
+              <circle cx="400" cy="180" r="50" stroke-width="3"/>
+              <circle cx="400" cy="180" r="35" stroke-width="1.5" stroke-dasharray="4 4"/>
+              <line x1="400" y1="110" x2="400" y2="80" stroke-width="3"/>
+              <line x1="400" y1="250" x2="400" y2="280" stroke-width="3"/>
+              <line x1="330" y1="180" x2="300" y2="180" stroke-width="3"/>
+              <line x1="470" y1="180" x2="500" y2="180" stroke-width="3"/>
+              <!-- Winged Scarab Wings Silhouette -->
+              <path d="M300 240 Q350 220 400 235 Q450 220 500 240 Q400 270 300 240 Z" stroke-width="1.5"/>
+            </svg>
+          </div>
         </div>
-        <h2 class="text-3xl sm:text-5xl font-cinzelDeco font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-amber-600 tracking-wide drop-shadow-lg">
+
+        <!-- Mid Temple Columns Layer (Flanking Pillars) -->
+        <div id="parallaxLayerMid" class="parallax-layer absolute inset-0 pointer-events-none flex justify-between items-stretch px-4 sm:px-12 opacity-30">
+          <!-- Left Ancient Pillar -->
+          <div class="w-16 sm:w-28 bg-gradient-to-r from-black/80 via-temple-800/40 to-transparent border-r border-amber-500/15 flex flex-col justify-around py-8">
+            <div class="w-2.5 h-12 bg-amber-500/20 rounded mx-auto"></div>
+            <div class="w-2 h-16 bg-amber-500/15 rounded mx-auto"></div>
+            <div class="w-2.5 h-12 bg-amber-500/20 rounded mx-auto"></div>
+          </div>
+          <!-- Right Ancient Pillar -->
+          <div class="w-16 sm:w-28 bg-gradient-to-l from-black/80 via-temple-800/40 to-transparent border-l border-amber-500/15 flex flex-col justify-around py-8">
+            <div class="w-2.5 h-12 bg-amber-500/20 rounded mx-auto"></div>
+            <div class="w-2 h-16 bg-amber-500/15 rounded mx-auto"></div>
+            <div class="w-2.5 h-12 bg-amber-500/20 rounded mx-auto"></div>
+          </div>
+        </div>
+
+        <!-- Atmospheric Torch Vignette Overlay -->
+        <div class="absolute inset-0 bg-radial-gradient from-transparent via-black/40 to-black/85 pointer-events-none"></div>
+      </div>
+
+      <!-- ================= HERO HEADER ================= -->
+      <div class="relative z-10 text-center space-y-3 max-w-3xl mx-auto pt-2 sm:pt-4">
+        <!-- Floating Archeological Badge -->
+        <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-gradient-to-r from-amber-500/15 via-amber-500/25 to-amber-500/15 border border-amber-400/40 text-amber-300 text-[11px] font-mono tracking-widest uppercase shadow-gold-glow">
+          <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+          <span>Ekspedisi Arkeologi Matematika 2D</span>
+        </div>
+
+        <!-- Majestic Title -->
+        <h2 class="text-4xl sm:text-6xl font-cinzelDeco font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-100 via-amber-300 to-amber-600 tracking-wider drop-shadow-[0_4px_16px_rgba(234,179,8,0.45)]">
           RELIC HUNTER
         </h2>
-        <h3 class="text-base sm:text-xl font-cinzel text-amber-100 tracking-widest font-semibold">
-          THE ANCIENT TEMPLE OF MATHEMA (2D EDITION)
+
+        <!-- Subtitle & Motto -->
+        <h3 class="text-sm sm:text-lg font-cinzel text-amber-200/90 tracking-[0.25em] font-semibold">
+          THE ANCIENT TEMPLE OF MATHEMA
         </h3>
-        <p class="text-slate-300 text-xs sm:text-sm leading-relaxed max-w-2xl mx-auto">
-          Kendalikan karakter arkeolog di dalam kuil kuno 2D, dekati batu prasasti untuk memecahkan sandi matematis, buka gerbang batu raksasa, dan jelajahi 4 level hingga menemukan <strong class="text-amber-300">Relik Suci</strong>!
+        <p class="text-slate-300 text-xs sm:text-sm leading-relaxed max-w-xl mx-auto font-sans">
+          Pecahkan sandi prasasti kuno aljabar, tembus pintu batu bertingkat, dan taklukkan jebakan kuil untuk menemukan <strong class="text-amber-300">Relik Suci</strong>!
         </p>
       </div>
 
-      <!-- Mode Selection Cards Grid -->
-      <div class="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+      <!-- ================= 4 MAIN INTERACTIVE STONE SLAB BUTTONS ================= -->
+      <div class="relative z-10 w-full max-w-2xl mx-auto my-6 sm:my-8 grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
         
-        <!-- Mode 1: Auto Expedition -->
-        <div class="stone-card rounded-2xl p-6 flex flex-col justify-between hover:border-amber-500/60 transition-all duration-300 group hover:-translate-y-1">
-          <div class="space-y-4">
-            <div class="w-12 h-12 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 group-hover:scale-110 group-hover:bg-amber-500 group-hover:text-black transition-all">
-              <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <!-- 1. Tombol: MULAI EKSPEDISI -->
+        <button id="btnMenuStartExpedition" type="button" class="stone-slab-btn group">
+          <div class="flex items-center gap-3.5 relative z-10">
+            <!-- Icon Container -->
+            <div class="w-12 h-12 rounded-xl bg-amber-500/15 border border-amber-500/40 flex items-center justify-center text-amber-300 group-hover:scale-110 group-hover:bg-amber-500 group-hover:text-black transition-all shadow-inner">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
               </svg>
             </div>
+            <!-- Labels -->
             <div>
-              <span class="text-xs font-mono text-amber-400 tracking-widest uppercase">Petualangan 2D</span>
-              <h4 class="text-xl font-cinzel font-bold text-white group-hover:text-amber-300 transition-colors">
-                Mode Ekspedisi Langsung
-              </h4>
-              <p class="text-xs text-slate-400 mt-0.5">(Auto-Generator Soal Kuil)</p>
-            </div>
-            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
-              Jelajahi 4 ruangan kuil 2D secara bertahap. Pecahkan teka-teki fungsi linear & komposisi fungsi untuk membuka pintu dan hindari jebakan runtuh!
-            </p>
-            <div class="pt-2 border-t border-slate-700/60 space-y-1.5 text-xs text-slate-400 font-mono">
-              <div class="flex items-center gap-2">
-                <span class="text-amber-400">✓</span> Gerakan Karakter 2D (WASD / Panah / Sentuh)
+              <div class="flex items-center gap-1.5">
+                <h4 class="font-cinzel font-bold text-sm sm:text-base text-white group-hover:text-amber-300 tracking-wider transition-colors">
+                  Mulai Ekspedisi
+                </h4>
+                <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 uppercase">Main</span>
               </div>
-              <div class="flex items-center gap-2">
-                <span class="text-amber-400">✓</span> Pintu Batu Bergeser & Level Transition
-              </div>
-              <div class="flex items-center gap-2">
-                <span class="text-amber-400">✓</span> 2 Obor Kuil & Jebakan Reset Acak
-              </div>
+              <p class="text-[11px] text-slate-400 group-hover:text-slate-300 transition-colors mt-0.5">
+                Buka gerbang batu & jelajahi kuil 2D
+              </p>
             </div>
           </div>
 
-          <div class="mt-6 pt-4 border-t border-slate-700/60 space-y-3">
-            <div class="flex items-center gap-2">
-              <label for="selectTeamPreset" class="text-xs text-slate-300 font-semibold">Pilih Tim:</label>
-              <select id="selectTeamPreset" class="flex-1 bg-temple-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-amber-300 focus:outline-none focus:border-amber-500">
-                <option value="Tim Ekspedisi A">Tim Ekspedisi A</option>
-                <option value="Tim Ekspedisi B">Tim Ekspedisi B</option>
-                <option value="Kustom">Kustom Nama...</option>
-              </select>
-            </div>
-            <input type="text" id="inputCustomTeamName" placeholder="Tulis nama tim kamu..." class="hidden w-full bg-temple-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500">
-            <button id="btnStartAutoMode" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-amber-500 via-amber-600 to-amber-700 hover:from-amber-400 hover:to-amber-600 text-black font-cinzel font-bold text-sm tracking-wider shadow-gold-glow flex items-center justify-center gap-2 transition-all active:scale-95">
-              <span>MASUK KUIL & MULAI MAIN 2D</span>
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
-              </svg>
-            </button>
-            <div class="text-center pt-1">
-              <button id="btnHomeCustomize" type="button" class="text-xs text-amber-300/90 hover:text-amber-200 underline font-semibold transition-colors inline-flex items-center gap-1">
-                <span>⚙️ Ingin mengisi rumus sendiri? Kustomisasi Rumus Bebas ➔</span>
-              </button>
-            </div>
+          <!-- Compass Reveal Indicator on Hover -->
+          <div class="compass-reveal flex items-center gap-1.5 relative z-10 text-amber-300">
+            <svg class="compass-needle w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <circle cx="12" cy="12" r="9" stroke-width="1.8" stroke="currentColor" stroke-dasharray="2 2"/>
+              <polygon points="12,4 15,12 12,20 9,12" fill="#eab308" stroke="#fde047" stroke-width="1"/>
+              <polygon points="12,4 15,12 12,12" fill="#ef4444"/>
+              <circle cx="12" cy="12" r="2" fill="#0b0e17"/>
+            </svg>
           </div>
-        </div>
+        </button>
 
-        <!-- Mode 2: Duel Kelas -->
-        <div class="stone-card rounded-2xl p-6 flex flex-col justify-between hover:border-amber-500/60 transition-all duration-300 group hover:-translate-y-1">
-          <div class="space-y-4">
-            <div class="w-12 h-12 rounded-xl bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400 group-hover:scale-110 group-hover:bg-rose-500 group-hover:text-black transition-all">
-              <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 004 11m0 0a8 8 0 001.5 4.67"/>
+        <!-- 2. Tombol: MUSEUM RELIC -->
+        <button id="btnMenuMuseum" type="button" class="stone-slab-btn group">
+          <div class="flex items-center gap-3.5 relative z-10">
+            <!-- Icon Container -->
+            <div class="w-12 h-12 rounded-xl bg-amber-500/15 border border-amber-500/40 flex items-center justify-center text-amber-300 group-hover:scale-110 group-hover:bg-amber-500 group-hover:text-black transition-all shadow-inner">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
               </svg>
             </div>
+            <!-- Labels -->
             <div>
-              <span class="text-xs font-mono text-rose-400 tracking-widest uppercase">Mode Tantangan</span>
-              <h4 class="text-xl font-cinzel font-bold text-white group-hover:text-rose-300 transition-colors">
-                Mode Duel Kelas 2D
-              </h4>
-              <p class="text-xs text-slate-400 mt-0.5">(Rancang Sandi & Tantang Lawan)</p>
-            </div>
-            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
-              <strong>Fase 1:</strong> Tim Penantang merancang kalimat sandi dan rumus enkripsi untuk 4 pintu.<br>
-              <strong>Fase 2:</strong> Tim Pemecah Sandi mengendalikan karakter 2D untuk membuka 4 gerbang lawan!
-            </p>
-            <div class="pt-2 border-t border-slate-700/60 space-y-1.5 text-xs text-slate-400 font-mono">
-              <div class="flex items-center gap-2">
-                <span class="text-rose-400">✓</span> Kustomisasi 4 Tingkat Prasasti
+              <div class="flex items-center gap-1.5">
+                <h4 class="font-cinzel font-bold text-sm sm:text-base text-white group-hover:text-amber-300 tracking-wider transition-colors">
+                  Museum Relic
+                </h4>
+                <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 uppercase">Galeri</span>
               </div>
-              <div class="flex items-center gap-2">
-                <span class="text-rose-400">✓</span> Live Ciphertext Math Calculator
-              </div>
-              <div class="flex items-center gap-2">
-                <span class="text-rose-400">✓</span> Kunci Rahasia Layar Interaktif
-              </div>
+              <p class="text-[11px] text-slate-400 group-hover:text-slate-300 transition-colors mt-0.5">
+                Koleksi artefak suci & arsip misteri
+              </p>
             </div>
           </div>
 
-          <div class="mt-6 pt-4 border-t border-slate-700/60">
-            <button id="btnOpenCustomSetup" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-rose-600 via-rose-700 to-rose-800 hover:from-rose-500 hover:to-rose-700 text-white font-cinzel font-bold text-sm tracking-wider shadow-ruby-glow flex items-center justify-center gap-2 transition-all active:scale-95">
-              <span>MASUK MODE DUEL KELAS</span>
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-              </svg>
-            </button>
+          <!-- Compass Reveal Indicator on Hover -->
+          <div class="compass-reveal flex items-center gap-1.5 relative z-10 text-amber-300">
+            <svg class="compass-needle w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <circle cx="12" cy="12" r="9" stroke-width="1.8" stroke="currentColor" stroke-dasharray="2 2"/>
+              <polygon points="12,4 15,12 12,20 9,12" fill="#eab308" stroke="#fde047" stroke-width="1"/>
+              <polygon points="12,4 15,12 12,12" fill="#ef4444"/>
+              <circle cx="12" cy="12" r="2" fill="#0b0e17"/>
+            </svg>
           </div>
-        </div>
+        </button>
+
+        <!-- 3. Tombol: PENGATURAN -->
+        <button id="btnMenuSettings" type="button" class="stone-slab-btn group">
+          <div class="flex items-center gap-3.5 relative z-10">
+            <!-- Icon Container -->
+            <div class="w-12 h-12 rounded-xl bg-amber-500/15 border border-amber-500/40 flex items-center justify-center text-amber-300 group-hover:scale-110 group-hover:bg-amber-500 group-hover:text-black transition-all shadow-inner">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
+            </div>
+            <!-- Labels -->
+            <div>
+              <div class="flex items-center gap-1.5">
+                <h4 class="font-cinzel font-bold text-sm sm:text-base text-white group-hover:text-amber-300 tracking-wider transition-colors">
+                  Pengaturan
+                </h4>
+                <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-300 border border-sky-500/30 uppercase">Opsi</span>
+              </div>
+              <p class="text-[11px] text-slate-400 group-hover:text-slate-300 transition-colors mt-0.5">
+                Suara, partikel debu, & kontrol
+              </p>
+            </div>
+          </div>
+
+          <!-- Compass Reveal Indicator on Hover -->
+          <div class="compass-reveal flex items-center gap-1.5 relative z-10 text-amber-300">
+            <svg class="compass-needle w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <circle cx="12" cy="12" r="9" stroke-width="1.8" stroke="currentColor" stroke-dasharray="2 2"/>
+              <polygon points="12,4 15,12 12,20 9,12" fill="#eab308" stroke="#fde047" stroke-width="1"/>
+              <polygon points="12,4 15,12 12,12" fill="#ef4444"/>
+              <circle cx="12" cy="12" r="2" fill="#0b0e17"/>
+            </svg>
+          </div>
+        </button>
+
+        <!-- 4. Tombol: KELUAR -->
+        <button id="btnMenuExit" type="button" class="stone-slab-btn group">
+          <div class="flex items-center gap-3.5 relative z-10">
+            <!-- Icon Container -->
+            <div class="w-12 h-12 rounded-xl bg-rose-500/15 border border-rose-500/40 flex items-center justify-center text-rose-300 group-hover:scale-110 group-hover:bg-rose-500 group-hover:text-black transition-all shadow-inner">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+              </svg>
+            </div>
+            <!-- Labels -->
+            <div>
+              <div class="flex items-center gap-1.5">
+                <h4 class="font-cinzel font-bold text-sm sm:text-base text-white group-hover:text-rose-300 tracking-wider transition-colors">
+                  Keluar
+                </h4>
+                <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/30 uppercase">Akhir</span>
+              </div>
+              <p class="text-[11px] text-slate-400 group-hover:text-slate-300 transition-colors mt-0.5">
+                Tinggalkan reruntuhan kuil kuno
+              </p>
+            </div>
+          </div>
+
+          <!-- Compass Reveal Indicator on Hover -->
+          <div class="compass-reveal flex items-center gap-1.5 relative z-10 text-rose-300">
+            <svg class="compass-needle w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <circle cx="12" cy="12" r="9" stroke-width="1.8" stroke="currentColor" stroke-dasharray="2 2"/>
+              <polygon points="12,4 15,12 12,20 9,12" fill="#ef4444" stroke="#fca5a5" stroke-width="1"/>
+              <polygon points="12,4 15,12 12,12" fill="#f87171"/>
+              <circle cx="12" cy="12" r="2" fill="#0b0e17"/>
+            </svg>
+          </div>
+        </button>
 
       </div>
 
-      <!-- Quick Concept Guide Card -->
-      <div class="max-w-4xl mx-auto bg-temple-850/60 border border-slate-700/60 rounded-xl p-4 text-xs text-slate-300 flex flex-col md:flex-row items-center justify-between gap-4">
-        <div class="flex items-center gap-3">
-          <div class="p-2.5 rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/20">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
-            </svg>
+      <!-- ================= BOTTOM SECTION & WIDGET 'RELIC HARI INI' ================= -->
+      <div class="relative z-10 flex flex-col md:flex-row items-end justify-between gap-4 pt-2">
+        
+        <!-- Left: Quick Field Note / Math Concept Prompt -->
+        <div class="hidden lg:flex items-center gap-3 bg-temple-850/80 backdrop-blur-sm border border-slate-700/60 rounded-xl p-3 max-w-md shadow-lg text-xs text-slate-300">
+          <div class="w-9 h-9 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-300 flex-shrink-0 text-base">
+            🧭
           </div>
           <div>
-            <span class="font-bold text-amber-300">Panduan Kontrol & Konsep Matematika:</span>
-            <p class="text-slate-400 mt-0.5">Gerakan: WASD / Panah | Interaksi: E / Spasi / Tombol Aksi | Invers: f⁻¹(y) & (g ∘ f)⁻¹(y)</p>
+            <div class="font-bold text-amber-300 font-cinzel">Catatan Jurnal Ekspedisi</div>
+            <p class="text-[11px] text-slate-400 leading-tight">Gunakan invers fungsi matematis untuk membedah sandi angka prasasti kuil.</p>
           </div>
         </div>
-        <button id="btnLearnConcepts" class="whitespace-nowrap px-3 py-1.5 bg-temple-700 hover:bg-temple-600 text-amber-200 border border-temple-600 rounded-lg font-semibold transition-all">
-          Pelajari Rumus ➔
-        </button>
+
+        <!-- Right: WIDGET 'RELIC HARI INI' (Kotak Info Pojok Kanan Bawah) -->
+        <aside id="widgetDailyRelic" aria-label="Widget Relic Hari Ini" class="w-full md:w-80 stone-card rounded-2xl p-3.5 border-amber-500/40 bg-gradient-to-br from-temple-850/95 via-temple-900/90 to-black/95 shadow-gold-glow relative overflow-hidden group hover:border-amber-400 transition-all">
+          
+          <!-- Ancient Brass Corner Clamps -->
+          <div class="absolute top-1 left-1 text-[9px] text-amber-500/40 select-none">◤</div>
+          <div class="absolute top-1 right-1 text-[9px] text-amber-500/40 select-none">◥</div>
+          <div class="absolute bottom-1 left-1 text-[9px] text-amber-500/40 select-none">◣</div>
+          <div class="absolute bottom-1 right-1 text-[9px] text-amber-500/40 select-none">◢</div>
+
+          <!-- Header Badge -->
+          <div class="flex items-center justify-between border-b border-slate-700/60 pb-2 mb-2.5">
+            <div class="flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+              <span class="font-cinzel font-bold text-xs tracking-wider text-amber-300">RELIK HARI INI</span>
+            </div>
+            <span class="text-[10px] font-mono text-slate-400 uppercase tracking-widest">Spesimen #04</span>
+          </div>
+
+          <!-- Silhouette & Mystery Relic Art Container -->
+          <div class="flex gap-3 items-center">
+            
+            <!-- Mysterious Silhouette Frame with Pulse Glow & Shimmer -->
+            <div class="w-20 h-20 rounded-xl bg-gradient-to-b from-temple-950 via-temple-900 to-black border border-amber-500/30 flex items-center justify-center relative overflow-hidden shadow-inner flex-shrink-0 relic-shimmer-wrapper">
+              
+              <!-- Subtle Amber Backlight Halo -->
+              <div class="absolute inset-0 bg-radial-gradient from-amber-500/25 via-amber-500/5 to-transparent"></div>
+
+              <!-- Mysterious Relic Silhouette (Crown of Ra / Sun Crown) -->
+              <svg class="w-12 h-12 text-slate-900 drop-shadow-[0_0_8px_rgba(234,179,8,0.5)] relic-silhouette-glow" viewBox="0 0 100 100" fill="currentColor">
+                <!-- Sun Disc Silhouette -->
+                <circle cx="50" cy="46" r="22" fill="#0d131f" stroke="#eab308" stroke-width="2"/>
+                <!-- Sun Horns / Crown Crescent -->
+                <path d="M22 62 Q50 90 78 62 Q72 82 50 82 Q28 82 22 62 Z" fill="#090d16" stroke="#eab308" stroke-width="1.8"/>
+                <!-- Crown Rays Radiating -->
+                <line x1="50" y1="12" x2="50" y2="20" stroke="#fde047" stroke-width="3" stroke-linecap="round"/>
+                <line x1="28" y1="22" x2="34" y2="28" stroke="#fde047" stroke-width="2.5" stroke-linecap="round"/>
+                <line x1="72" y1="22" x2="66" y2="28" stroke="#fde047" stroke-width="2.5" stroke-linecap="round"/>
+                <line x1="16" y1="46" x2="24" y2="46" stroke="#fde047" stroke-width="2.5" stroke-linecap="round"/>
+                <line x1="84" y1="46" x2="76" y2="46" stroke="#fde047" stroke-width="2.5" stroke-linecap="round"/>
+                <!-- Eye of Ra pupil glint -->
+                <circle cx="50" cy="46" r="5" fill="#fde047"/>
+              </svg>
+
+              <!-- Lock Seal Overlay -->
+              <div class="absolute bottom-1 right-1 w-5 h-5 rounded bg-black/80 border border-amber-500/50 flex items-center justify-center text-[10px] text-amber-300">
+                🔒
+              </div>
+            </div>
+
+            <!-- Mystery Information & Clue -->
+            <div class="flex-1 space-y-1">
+              <div class="flex items-center justify-between">
+                <h5 class="font-cinzel font-bold text-xs text-white group-hover:text-amber-300 transition-colors">
+                  Mahkota Surya Kuno
+                </h5>
+              </div>
+              <p class="text-[10px] text-amber-400 font-mono">
+                Status: <span class="text-rose-400 font-bold">Tersegel di Kuil</span>
+              </p>
+              <div class="p-1.5 rounded bg-temple-950/80 border border-slate-700/60 text-[10px] text-slate-300 leading-snug">
+                <span class="text-amber-300 font-semibold">📍 Petunjuk:</span>
+                "Tersembunyi di kedalaman Ruang Suci Chamber 4. Terkunci di balik invers komposisi $(g \circ f)^{-1}(y)$."
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Inspect Clue Action Link -->
+          <div class="mt-2.5 pt-2 border-t border-slate-700/60 flex items-center justify-between text-[11px]">
+            <span class="text-slate-400 font-mono">Buka segel di Boss Level</span>
+            <button id="btnWidgetInspectRelic" type="button" class="text-amber-300 hover:text-amber-100 font-cinzel font-bold underline transition-colors inline-flex items-center gap-1 cursor-pointer">
+              <span>Periksa Museum ➔</span>
+            </button>
+          </div>
+
+        </aside>
+
       </div>
 
     </section>
@@ -1170,6 +1336,309 @@
       </button>
     </div>
   </div>
+
+
+  <!-- ================= MODAL 1: PERSIAPAN EKSPEDISI (DISPATCH) ================= -->
+  <div id="modalExpeditionDispatch" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-5">
+    <div class="stone-card rounded-2xl max-w-2xl w-full p-5 sm:p-6 space-y-5 border-amber-500 shadow-gold-glow max-h-[92vh] overflow-y-auto">
+      
+      <!-- Header -->
+      <div class="flex items-center justify-between border-b border-slate-700 pb-3">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 text-lg">
+            🗺️
+          </div>
+          <div>
+            <h3 class="font-cinzel font-bold text-lg sm:text-xl text-white">PERSIAPAN EKSPEDISI KUIL 2D</h3>
+            <p class="text-xs text-slate-400">Pilih tim ekspedisi dan mode penjelajahan</p>
+          </div>
+        </div>
+        <button id="btnCloseExpeditionDispatch" type="button" class="text-slate-400 hover:text-white p-1">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Team Preset Selection -->
+      <div class="bg-temple-900/90 rounded-xl p-3.5 border border-slate-700 space-y-2">
+        <div class="flex items-center justify-between text-xs font-semibold text-slate-300">
+          <span>NAMA TIM ARKEOLOG:</span>
+          <span class="text-amber-400 font-mono text-[10px]">Identitas Penjelajah</span>
+        </div>
+        <div class="flex flex-col sm:flex-row items-center gap-2">
+          <select id="selectTeamPreset" class="w-full sm:w-1/2 bg-temple-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-amber-300 focus:outline-none focus:border-amber-500 font-semibold">
+            <option value="Tim Ekspedisi A">Tim Ekspedisi A</option>
+            <option value="Tim Ekspedisi B">Tim Ekspedisi B</option>
+            <option value="Kustom">Kustom Nama Sendiri...</option>
+          </select>
+          <input type="text" id="inputCustomTeamName" placeholder="Tulis nama regu/tim kamu..." class="hidden w-full sm:w-1/2 bg-temple-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
+        </div>
+      </div>
+
+      <!-- 2 Mode Options Grid -->
+      <div class="grid sm:grid-cols-2 gap-3.5">
+        
+        <!-- Mode 1: Auto Expedition -->
+        <div class="bg-gradient-to-b from-amber-950/20 via-temple-900/90 to-temple-950 rounded-xl p-4 border border-amber-500/40 flex flex-col justify-between space-y-3">
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-mono uppercase text-amber-400 font-bold">Rekomendasi Solo</span>
+              <span class="text-xs">⚡</span>
+            </div>
+            <h4 class="font-cinzel font-bold text-white text-base text-amber-200">Mode Petualangan Langsung</h4>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              Soal diacak otomatis oleh kuil. Taklukkan 4 pintu berurutan, hindari jebakan duri, dan raih Relik Suci!
+            </p>
+          </div>
+          <button id="btnStartAutoMode" type="button" class="w-full py-2.5 px-3 rounded-lg bg-gradient-to-r from-amber-500 via-amber-600 to-amber-700 hover:from-amber-400 hover:to-amber-600 text-black font-cinzel font-bold text-xs tracking-wider shadow-gold-glow flex items-center justify-center gap-1.5 transition-all active:scale-95">
+            <span>MASUK KUIL 2D SEKARANG</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Mode 2: Duel Kelas -->
+        <div class="bg-gradient-to-b from-rose-950/20 via-temple-900/90 to-temple-950 rounded-xl p-4 border border-rose-500/40 flex flex-col justify-between space-y-3">
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-mono uppercase text-rose-400 font-bold">Kompetisi Kelas</span>
+              <span class="text-xs">⚔️</span>
+            </div>
+            <h4 class="font-cinzel font-bold text-white text-base text-rose-200">Mode Duel Kelas</h4>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              Rancang sandi dan rumus invers aljabar sendiri, lalu tantang regu kawanmu adu kecepatan waktu!
+            </p>
+          </div>
+          <button id="btnOpenCustomSetup" type="button" class="w-full py-2.5 px-3 rounded-lg bg-gradient-to-r from-rose-600 via-rose-700 to-rose-800 hover:from-rose-500 hover:to-rose-700 text-white font-cinzel font-bold text-xs tracking-wider shadow-ruby-glow flex items-center justify-center gap-1.5 transition-all active:scale-95">
+            <span>RANCANG FORMULA DUEL</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Quick concept guide footer link -->
+      <div class="flex items-center justify-between pt-2 border-t border-slate-700/60 text-xs">
+        <button id="btnHomeCustomize" type="button" class="text-amber-300/90 hover:text-amber-100 underline font-semibold transition-colors">
+          ⚙️ Kustomisasi Rumus Bebas Sendiri
+        </button>
+        <button id="btnLearnConcepts" type="button" class="text-slate-300 hover:text-white font-semibold transition-colors">
+          📖 Buka Panduan Rumus Invers ➔
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ================= MODAL 2: MUSEUM RELIK MATHEMA ================= -->
+  <div id="modalMuseum" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-5">
+    <div class="stone-card rounded-2xl max-w-3xl w-full p-5 sm:p-6 space-y-4 border-amber-500 shadow-gold-glow max-h-[92vh] overflow-y-auto">
+      
+      <!-- Header -->
+      <div class="flex items-center justify-between border-b border-slate-700 pb-3">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 text-xl">
+            🏛️
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="font-cinzel font-bold text-lg sm:text-xl text-white">MUSEUM ARTEFAK MATHEMA</h3>
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 uppercase">Galeri Kuil</span>
+            </div>
+            <p class="text-xs text-slate-400">Koleksi 4 Relik Suci Kuno & Arsip Misteri Sandi Aljabar</p>
+          </div>
+        </div>
+        <button id="btnCloseMuseum" type="button" class="text-slate-400 hover:text-white p-1">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Relics Exhibition Grid (4 Sacred Relics) -->
+      <div class="grid sm:grid-cols-2 gap-3.5">
+        
+        <!-- Relic 1: Prasasti Al-Jabr (Chamber 1) -->
+        <div class="bg-temple-900/90 rounded-xl p-3.5 border border-slate-700/80 space-y-2 hover:border-amber-500/40 transition-all">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-2xl flex-shrink-0">
+              📜
+            </div>
+            <div>
+              <span class="text-[9px] font-mono text-amber-400 uppercase">Kamar 1: Gerbang Luar</span>
+              <h4 class="font-cinzel font-bold text-sm text-white">Prasasti Al-Jabr</h4>
+              <span class="text-[10px] font-mono text-emerald-400">Tingkat: Mudah</span>
+            </div>
+          </div>
+          <p class="text-[11px] text-slate-300 leading-snug">
+            Lempengan batu kapur tertua kuil. Menggunakan enkripsi pergeseran fungsi linear $f(x) = x + b$ dengan invers $f^{-1}(y) = y - b$.
+          </p>
+        </div>
+
+        <!-- Relic 2: Scarab Zamrud Kuno (Chamber 2) -->
+        <div class="bg-temple-900/90 rounded-xl p-3.5 border border-slate-700/80 space-y-2 hover:border-amber-500/40 transition-all">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-lg bg-sky-500/10 border border-sky-500/30 flex items-center justify-center text-2xl flex-shrink-0">
+              🪲
+            </div>
+            <div>
+              <span class="text-[9px] font-mono text-sky-400 uppercase">Kamar 2: Katakomba</span>
+              <h4 class="font-cinzel font-bold text-sm text-white">Scarab Zamrud Kuno</h4>
+              <span class="text-[10px] font-mono text-sky-400">Tingkat: Sedang</span>
+            </div>
+          </div>
+          <p class="text-[11px] text-slate-300 leading-snug">
+            Jimat kumbang pemandu lorong katakomba. Memerlukan invers fungsi linear penuh $f(x) = ax + b \implies f^{-1}(y) = \frac{y - b}{a}$.
+          </p>
+        </div>
+
+        <!-- Relic 3: Mata Kebenaran Horus (Chamber 3) -->
+        <div class="bg-temple-900/90 rounded-xl p-3.5 border border-slate-700/80 space-y-2 hover:border-amber-500/40 transition-all">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-lg bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-2xl flex-shrink-0">
+              👁️
+            </div>
+            <div>
+              <span class="text-[9px] font-mono text-purple-400 uppercase">Kamar 3: Altar Kuno</span>
+              <h4 class="font-cinzel font-bold text-sm text-white">Mata Horus Altar</h4>
+              <span class="text-[10px] font-mono text-purple-400">Tingkat: Sulit</span>
+            </div>
+          </div>
+          <p class="text-[11px] text-slate-300 leading-snug">
+            Peninggalan di ruang pengorbanan. Memadukan dua fungsi komposisi $(g \circ f)(x)$ yang memerlukan pembalikan invers bertingkat.
+          </p>
+        </div>
+
+        <!-- Relic 4: Mahkota Surya Kuno (Chamber 4 - Featured Relic Hari Ini) -->
+        <div class="bg-gradient-to-br from-amber-950/40 via-temple-900 to-black rounded-xl p-3.5 border-2 border-amber-500/60 space-y-2 shadow-gold-glow relative overflow-hidden">
+          <div class="absolute top-1 right-2 text-[9px] font-mono uppercase bg-amber-500 text-black px-1.5 py-0.5 rounded font-bold">
+            Relik Hari Ini
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-lg bg-amber-500/20 border border-amber-400/50 flex items-center justify-center text-2xl flex-shrink-0">
+              👑
+            </div>
+            <div>
+              <span class="text-[9px] font-mono text-amber-300 uppercase">Kamar 4: Ruang Suci</span>
+              <h4 class="font-cinzel font-bold text-sm text-amber-200">Mahkota Surya Kuno</h4>
+              <span class="text-[10px] font-mono text-amber-400 font-bold">Boss Sanctum</span>
+            </div>
+          </div>
+          <p class="text-[11px] text-slate-300 leading-snug">
+            Relik pusaka tertinggi kuil Mathema. Tersegel di balik pintu gerbang Boss Level setelah memecahkan komposisi invers kalimat panjang $\ge 7$ kata.
+          </p>
+        </div>
+
+      </div>
+
+      <!-- Footer Info -->
+      <div class="pt-2 border-t border-slate-700/60 flex items-center justify-between text-xs">
+        <span class="text-slate-400 font-mono">Taklukkan seluruh pintu untuk membuka segelnya!</span>
+        <button id="btnMuseumStartNow" type="button" class="px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-black font-cinzel font-bold text-xs tracking-wider transition-all">
+          Mulai Petualangan ➔
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ================= MODAL 3: PENGATURAN KUIL (SETTINGS) ================= -->
+  <div id="modalSettings" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-5">
+    <div class="stone-card rounded-2xl max-w-md w-full p-5 sm:p-6 space-y-5 border-amber-500 shadow-gold-glow">
+      
+      <!-- Header -->
+      <div class="flex items-center justify-between border-b border-slate-700 pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-lg bg-sky-500/20 border border-sky-500/40 flex items-center justify-center text-sky-300 text-lg">
+            ⚙️
+          </div>
+          <h3 class="font-cinzel font-bold text-lg text-white">PENGATURAN KUIL</h3>
+        </div>
+        <button id="btnCloseSettings" type="button" class="text-slate-400 hover:text-white p-1">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Settings List -->
+      <div class="space-y-3.5 text-xs text-slate-300">
+        
+        <!-- Setting 1: Audio Synthesizer -->
+        <div class="flex items-center justify-between p-3 rounded-xl bg-temple-900 border border-slate-700">
+          <div>
+            <div class="font-semibold text-white">Efek Suara Kuil (Web Audio)</div>
+            <p class="text-[11px] text-slate-400">Langkah kaki, geseran batu, & dengung sandi</p>
+          </div>
+          <button id="btnToggleSoundSetting" type="button" class="px-3 py-1.5 rounded-lg bg-amber-500 text-black font-mono font-bold text-xs transition-colors">
+            AKTIF
+          </button>
+        </div>
+
+        <!-- Setting 2: Golden Dust Particles -->
+        <div class="flex items-center justify-between p-3 rounded-xl bg-temple-900 border border-slate-700">
+          <div>
+            <div class="font-semibold text-white">Partikel Debu Emas & Obor</div>
+            <p class="text-[11px] text-slate-400">Efek atmosferik partikel melayang di layar</p>
+          </div>
+          <button id="btnToggleParticlesSetting" type="button" class="px-3 py-1.5 rounded-lg bg-amber-500 text-black font-mono font-bold text-xs transition-colors">
+            AKTIF
+          </button>
+        </div>
+
+        <!-- Setting 3: Virtual D-Pad Touch Controls -->
+        <div class="flex items-center justify-between p-3 rounded-xl bg-temple-900 border border-slate-700">
+          <div>
+            <div class="font-semibold text-white">Virtual D-Pad Layar Sentuh</div>
+            <p class="text-[11px] text-slate-400">Tampilkan kontrol sentuh untuk layar PC / Tablet</p>
+          </div>
+          <button id="btnToggleDPadSetting" type="button" class="px-3 py-1.5 rounded-lg bg-temple-800 text-amber-300 border border-slate-600 font-mono font-bold text-xs transition-colors">
+            OTOMATIS
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Save & Done -->
+      <div class="pt-2 border-t border-slate-700/60">
+        <button id="btnDoneSettings" type="button" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-700 text-black font-cinzel font-bold text-xs tracking-wider shadow-gold-glow">
+          SIMPAN & TUTUP
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ================= MODAL 4: KONFIRMASI KELUAR (EXIT CONFIRM) ================= -->
+  <div id="modalExitConfirm" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="stone-card rounded-2xl max-w-sm w-full p-6 text-center space-y-4 border-rose-500/50 shadow-ruby-glow">
+      <div class="w-14 h-14 mx-auto rounded-full bg-rose-500/20 border-2 border-rose-500 flex items-center justify-center text-rose-300 text-2xl">
+        🚪
+      </div>
+      <div class="space-y-1.5">
+        <h3 class="text-xl font-cinzel font-bold text-white">TINGGALKAN KUIL KUNO?</h3>
+        <p class="text-xs text-slate-300 leading-relaxed">
+          Apakah kamu ingin menyudahi ekspedisi hari ini? Seluruh catatan prasasti dan waktu ekspedisi akan diarsipkan.
+        </p>
+      </div>
+      <div class="flex items-center gap-2 pt-2">
+        <button id="btnCancelExit" type="button" class="flex-1 py-2.5 rounded-xl bg-temple-800 hover:bg-temple-700 text-slate-300 font-cinzel font-bold text-xs border border-slate-600 transition-all">
+          TETAP DI KUIL
+        </button>
+        <button id="btnConfirmExit" type="button" class="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-rose-600 to-rose-800 hover:from-rose-500 hover:to-rose-700 text-white font-cinzel font-bold text-xs shadow-ruby-glow transition-all">
+          AKHIRI PETUALANGAN
+        </button>
+      </div>
+    </div>
+  </div>
+
 
   <!-- Modular Game Engine JavaScript -->
   <script src="game.js"></script>

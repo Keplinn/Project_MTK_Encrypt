@@ -18,6 +18,22 @@ Kode telah dipisahkan secara rapi dan modular:
 
 ---
 
+## 🧭 Antarmuka Main Menu Arkeologi Dinamis (Parallax & Golden Dust)
+Halaman awal permainan dirancang dengan standar **Senior Game UI/UX** untuk menghadirkan atmosfer penjelajahan arkeologi yang imersif:
+* **Latar Belakang Parallax Dinamis:** Latar reruntuhan kuil bergerak dinamis merespons posisi kursor mouse secara halus (memberikan ilusi 3D seolah-olah mengintip ke dalam lorong kuil kuno).
+* **Efek Partikel Debu Emas (*Golden Dust Motes*):** Partikel debu bercahaya keemasan melayang perlahan di layar secara organik dan otomatis dijeda saat permainan 2D berlangsung agar hemat baterai/performa tinggi.
+* **4 Tombol Menu Lempengan Batu (*Stone Slab Buttons*):**
+  1. **Mulai Ekspedisi:** Membuka persiapan tim dan pemilihan mode (Petualangan Solo Otomatis atau Duel Kelas).
+  2. **Museum Relic:** Galeri 4 artefak suci kuil (Prasasti Al-Jabr, Scarab Zamrud, Mata Horus, dan Mahkota Surya).
+  3. **Pengaturan:** Mengatur efek suara Web Audio, efek partikel debu emas, dan kontrol sentuh Virtual D-Pad.
+  4. **Keluar:** Konfirmasi akhir petualangan ekspedisi kuil.
+  * *Efek Interaktif:* Saat tombol di-hover, lempengan batu bergeser sedikit ke kanan (+12px), memancarkan cahaya pendar emas (*ambient gold glow*), dan memunculkan ikon jarum kompas berputar di sampingnya disertai efek audio klik/hover batu kuno.
+* **Widget 'Relic Hari Ini' (Pojok Kanan Bawah):**
+  * Menampilkan siluet misterius relik unggulan hari ini (**Mahkota Surya Kuno**) yang berdenyut dalam aura cahaya pendar emas dengan sapuan kilau (*shimmer sweep*).
+  * Dilengkapi petunjuk lokasi penemuan (*cryptic clue*) dan tombol jalan pintas langsung untuk memeriksa arsip di Museum Relic.
+
+---
+
 ## 🎮 Kontrol Permainan 2D
 
 | Aksi | Keyboard (Komputer / Laptop) | Mobile / Tablet (Layar Sentuh) |

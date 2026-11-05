@@ -239,5 +239,164 @@
   box-shadow: 0 0 10px rgba(245, 158, 11, 0.4) !important;
 }
 
+/* ===================================================================
+   REVAMPED IMMERSIVE MAIN MENU: PARALLAX, STONE SLABS & DUST
+   =================================================================== */
+
+/* Parallax Viewport & Layers */
+.parallax-container {
+  perspective: 1200px;
+  transform-style: preserve-3d;
+}
+
+.parallax-layer {
+  will-change: transform;
+  transform-style: preserve-3d;
+  pointer-events: none;
+  transition: transform 0.08s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Golden Dust Particle Canvas */
+#goldDustCanvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Stone Slab / Aged Parchment Interactive Menu Buttons */
+.stone-slab-btn {
+  position: relative;
+  background: linear-gradient(135deg, #182033 0%, #121828 50%, #0d121f 100%);
+  border: 1.5px solid #364468;
+  border-radius: 1rem;
+  padding: 1.1rem 1.4rem;
+  box-shadow: 
+    0 10px 25px -5px rgba(0, 0, 0, 0.75),
+    inset 0 1px 1px rgba(255, 255, 255, 0.12),
+    inset 0 -2px 3px rgba(0, 0, 0, 0.85);
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  overflow: hidden;
+  user-select: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-align: left;
+}
+
+/* Subtle aged stone chisel texture overlay */
+.stone-slab-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(circle at 10% 50%, rgba(234, 179, 8, 0.12), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+/* Ancient Runic Corner Accents */
+.stone-slab-btn::after {
+  content: '◈';
+  position: absolute;
+  top: 0.5rem;
+  right: 0.75rem;
+  font-size: 0.65rem;
+  color: rgba(234, 179, 8, 0.25);
+  pointer-events: none;
+  transition: color 0.3s ease, transform 0.3s ease;
+}
+
+/* Hover: Slides right, golden chisel glow & brighter border */
+.stone-slab-btn:hover {
+  transform: translateX(12px);
+  border-color: #fde047;
+  box-shadow: 
+    0 14px 32px -4px rgba(0, 0, 0, 0.85),
+    0 0 25px rgba(234, 179, 8, 0.45),
+    inset 0 0 15px rgba(253, 224, 71, 0.15);
+}
+
+.stone-slab-btn:hover::before {
+  opacity: 1;
+}
+
+.stone-slab-btn:hover::after {
+  color: #fde047;
+  transform: scale(1.3);
+}
+
+.stone-slab-btn:active {
+  transform: translateX(8px) scale(0.98);
+}
+
+/* Golden Compass Indicator on Hover */
+.compass-reveal {
+  opacity: 0;
+  transform: translateX(-14px) rotate(-45deg);
+  transition: all 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.stone-slab-btn:hover .compass-reveal {
+  opacity: 1;
+  transform: translateX(0) rotate(0deg);
+}
+
+/* Compass Needle Rotation */
+@keyframes compassFloat {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(15deg); }
+}
+
+.stone-slab-btn:hover .compass-needle {
+  animation: compassFloat 2.2s infinite ease-in-out;
+}
+
+/* Relic Silhouette & Shimmer Sweep */
+@keyframes relicSweep {
+  0% { transform: translateX(-150%) skewX(-25deg); }
+  40%, 100% { transform: translateX(200%) skewX(-25deg); }
+}
+
+.relic-shimmer-wrapper {
+  position: relative;
+  overflow: hidden;
+}
+
+.relic-shimmer-wrapper::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(253, 224, 71, 0.05) 35%,
+    rgba(253, 224, 71, 0.4) 50%,
+    rgba(253, 224, 71, 0.05) 65%,
+    transparent 100%
+  );
+  animation: relicSweep 4.5s infinite ease-in-out;
+  pointer-events: none;
+}
+
+/* Relic Silhouette Pulse Glow */
+@keyframes relicPulse {
+  0%, 100% { filter: drop-shadow(0 0 12px rgba(234, 179, 8, 0.3)); transform: scale(1); }
+  50% { filter: drop-shadow(0 0 22px rgba(253, 224, 71, 0.65)); transform: scale(1.03); }
+}
+
+.relic-silhouette-glow {
+  animation: relicPulse 3s infinite ease-in-out;
+}
+
+
 
 

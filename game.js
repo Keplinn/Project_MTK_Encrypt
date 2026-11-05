@@ -244,6 +244,38 @@ class AncientAudioEngine {
       osc.stop(now + idx * 0.08 + 0.35);
     });
   }
+
+  playMenuHover() {
+    if (this.muted || !this.ctx) return;
+    const now = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(520, now);
+    osc.frequency.exponentialRampToValueAtTime(940, now + 0.045);
+    gain.gain.setValueAtTime(0.04, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.045);
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.045);
+  }
+
+  playMenuClick() {
+    if (this.muted || !this.ctx) return;
+    const now = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(160, now);
+    osc.frequency.exponentialRampToValueAtTime(70, now + 0.12);
+    gain.gain.setValueAtTime(0.25, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.12);
+  }
 }
 
 const sound = new AncientAudioEngine();
@@ -418,7 +450,11 @@ function isAnyModalOpen() {
     'modalScratchpad',
     'modalMathGuide',
     'modalTrapReset',
-    'modalDuelLocked'
+    'modalDuelLocked',
+    'modalExpeditionDispatch',
+    'modalMuseum',
+    'modalSettings',
+    'modalExitConfirm'
   ];
   return modalIds.some(id => {
     const el = document.getElementById(id);
@@ -454,6 +490,30 @@ function closeActiveModalOnEscape() {
   const guide = document.getElementById('modalMathGuide');
   if (guide && !guide.classList.contains('hidden')) {
     guide.classList.add('hidden');
+    resetKeys();
+    return true;
+  }
+  const dispatch = document.getElementById('modalExpeditionDispatch');
+  if (dispatch && !dispatch.classList.contains('hidden')) {
+    dispatch.classList.add('hidden');
+    resetKeys();
+    return true;
+  }
+  const museum = document.getElementById('modalMuseum');
+  if (museum && !museum.classList.contains('hidden')) {
+    museum.classList.add('hidden');
+    resetKeys();
+    return true;
+  }
+  const settings = document.getElementById('modalSettings');
+  if (settings && !settings.classList.contains('hidden')) {
+    settings.classList.add('hidden');
+    resetKeys();
+    return true;
+  }
+  const exitModal = document.getElementById('modalExitConfirm');
+  if (exitModal && !exitModal.classList.contains('hidden')) {
+    exitModal.classList.add('hidden');
     resetKeys();
     return true;
   }
@@ -3059,6 +3119,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const compassBadge = document.getElementById('compassUsageBadge');
     if (compassBadge) compassBadge.textContent = '1x';
 
+    document.getElementById('modalExpeditionDispatch')?.classList.add('hidden');
     document.getElementById('viewHome').classList.add('hidden');
     document.getElementById('viewGameStage').classList.remove('hidden');
     document.getElementById('topGameBar').classList.remove('hidden');
@@ -3074,6 +3135,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const openCustomSetup = () => {
     sound.init();
     resetKeys();
+    document.getElementById('modalExpeditionDispatch')?.classList.add('hidden');
     document.getElementById('viewHome').classList.add('hidden');
     document.getElementById('viewCustomSetup').classList.remove('hidden');
     updateCustomPreviews();
@@ -3436,6 +3498,269 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Revamped Main Menu: Parallax, Golden Dust & Stone Slab Buttons
+  initGoldDustCanvas();
+  initMenuParallax();
+  initMainMenuUI();
+
   // Start 2D Animation Loop
   requestAnimationFrame(gameLoop);
 });
+
+// --- 16. REVAMPED MAIN MENU: GOLD DUST, PARALLAX & STONE SLAB BUTTONS ---
+
+let goldDustEnabled = true;
+
+function initGoldDustCanvas() {
+  const canvas = document.getElementById('goldDustCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+
+  function resize() {
+    const parent = canvas.parentElement;
+    if (parent) {
+      canvas.width = parent.clientWidth || window.innerWidth;
+      canvas.height = parent.clientHeight || window.innerHeight;
+    }
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const particleCount = 48;
+  const dustParticles = [];
+
+  for (let i = 0; i < particleCount; i++) {
+    dustParticles.push({
+      x: Math.random() * (canvas.width || 800),
+      y: Math.random() * (canvas.height || 600),
+      size: Math.random() * 2.2 + 0.8,
+      speedY: -(Math.random() * 0.45 + 0.2),
+      speedX: (Math.random() - 0.5) * 0.3,
+      wobbleSpeed: Math.random() * 0.03 + 0.01,
+      wobbleAmp: Math.random() * 1.5 + 0.5,
+      angle: Math.random() * Math.PI * 2,
+      baseAlpha: Math.random() * 0.5 + 0.25,
+      alpha: 0.5,
+      color: Math.random() > 0.3 ? '#fde047' : '#f97316'
+    });
+  }
+
+  function renderDust() {
+    const homeSection = document.getElementById('viewHome');
+    if (homeSection && !homeSection.classList.contains('hidden') && goldDustEnabled) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      for (let i = 0; i < dustParticles.length; i++) {
+        const p = dustParticles[i];
+        p.angle += p.wobbleSpeed;
+        p.y += p.speedY;
+        p.x += p.speedX + Math.sin(p.angle) * 0.35;
+        p.alpha = p.baseAlpha + Math.sin(p.angle * 2) * 0.15;
+
+        // Wrap around canvas bounds
+        if (p.y < -10) {
+          p.y = canvas.height + 5;
+          p.x = Math.random() * canvas.width;
+        }
+        if (p.x < -10) p.x = canvas.width + 5;
+        if (p.x > canvas.width + 10) p.x = -5;
+
+        ctx.save();
+        ctx.globalAlpha = Math.max(0.1, Math.min(1, p.alpha));
+        ctx.fillStyle = p.color;
+        ctx.shadowColor = p.color;
+        ctx.shadowBlur = 6;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+    requestAnimationFrame(renderDust);
+  }
+
+  requestAnimationFrame(renderDust);
+}
+
+function initMenuParallax() {
+  const homeView = document.getElementById('viewHome');
+  const layerDeep = document.getElementById('parallaxLayerDeep');
+  const layerMid = document.getElementById('parallaxLayerMid');
+  if (!homeView) return;
+
+  let targetX = 0;
+  let targetY = 0;
+  let currentX = 0;
+  let currentY = 0;
+
+  window.addEventListener('mousemove', (e) => {
+    if (homeView.classList.contains('hidden')) return;
+    const cx = window.innerWidth / 2;
+    const cy = window.innerHeight / 2;
+    targetX = (e.clientX - cx) / cx; // -1 to 1
+    targetY = (e.clientY - cy) / cy; // -1 to 1
+  });
+
+  function updateParallax() {
+    if (homeView && !homeView.classList.contains('hidden')) {
+      currentX += (targetX - currentX) * 0.08;
+      currentY += (targetY - currentY) * 0.08;
+
+      if (layerDeep) {
+        layerDeep.style.transform = `translate3d(${(-currentX * 18).toFixed(1)}px, ${(-currentY * 14).toFixed(1)}px, 0)`;
+      }
+      if (layerMid) {
+        layerMid.style.transform = `translate3d(${(-currentX * 8).toFixed(1)}px, ${(-currentY * 6).toFixed(1)}px, 0)`;
+      }
+    }
+    requestAnimationFrame(updateParallax);
+  }
+
+  requestAnimationFrame(updateParallax);
+}
+
+function initMainMenuUI() {
+  // 1. Button: Mulai Ekspedisi
+  const btnStart = document.getElementById('btnMenuStartExpedition');
+  const modalDispatch = document.getElementById('modalExpeditionDispatch');
+  const btnCloseDispatch = document.getElementById('btnCloseExpeditionDispatch');
+
+  btnStart?.addEventListener('click', () => {
+    sound.init();
+    sound.playMenuClick();
+    modalDispatch?.classList.remove('hidden');
+  });
+
+  btnCloseDispatch?.addEventListener('click', () => {
+    modalDispatch?.classList.add('hidden');
+    resetKeys();
+  });
+
+  // 2. Button: Museum Relic
+  const btnMuseum = document.getElementById('btnMenuMuseum');
+  const modalMuseum = document.getElementById('modalMuseum');
+  const btnCloseMuseum = document.getElementById('btnCloseMuseum');
+  const btnMuseumStartNow = document.getElementById('btnMuseumStartNow');
+  const btnWidgetInspect = document.getElementById('btnWidgetInspectRelic');
+
+  const openMuseum = () => {
+    sound.init();
+    sound.playMenuClick();
+    modalMuseum?.classList.remove('hidden');
+  };
+
+  btnMuseum?.addEventListener('click', openMuseum);
+  btnWidgetInspect?.addEventListener('click', openMuseum);
+
+  btnCloseMuseum?.addEventListener('click', () => {
+    modalMuseum?.classList.add('hidden');
+    resetKeys();
+  });
+
+  btnMuseumStartNow?.addEventListener('click', () => {
+    modalMuseum?.classList.add('hidden');
+    modalDispatch?.classList.remove('hidden');
+  });
+
+  // 3. Button: Pengaturan
+  const btnSettings = document.getElementById('btnMenuSettings');
+  const modalSettings = document.getElementById('modalSettings');
+  const btnCloseSettings = document.getElementById('btnCloseSettings');
+  const btnDoneSettings = document.getElementById('btnDoneSettings');
+
+  const btnToggleSound = document.getElementById('btnToggleSoundSetting');
+  const btnToggleParticles = document.getElementById('btnToggleParticlesSetting');
+  const btnToggleDPad = document.getElementById('btnToggleDPadSetting');
+
+  btnSettings?.addEventListener('click', () => {
+    sound.init();
+    sound.playMenuClick();
+    modalSettings?.classList.remove('hidden');
+  });
+
+  const closeSettings = () => {
+    modalSettings?.classList.add('hidden');
+    resetKeys();
+  };
+
+  btnCloseSettings?.addEventListener('click', closeSettings);
+  btnDoneSettings?.addEventListener('click', closeSettings);
+
+  btnToggleSound?.addEventListener('click', () => {
+    sound.init();
+    sound.muted = !sound.muted;
+    btnToggleSound.textContent = sound.muted ? 'NONAKTIF' : 'AKTIF';
+    btnToggleSound.className = sound.muted
+      ? 'px-3 py-1.5 rounded-lg bg-temple-800 text-slate-400 font-mono font-bold text-xs transition-colors'
+      : 'px-3 py-1.5 rounded-lg bg-amber-500 text-black font-mono font-bold text-xs transition-colors';
+    
+    // Sync with top bar audio toggle
+    const iconOn = document.getElementById('iconAudioOn');
+    const iconOff = document.getElementById('iconAudioOff');
+    if (sound.muted) {
+      iconOn?.classList.add('hidden');
+      iconOff?.classList.remove('hidden');
+    } else {
+      iconOn?.classList.remove('hidden');
+      iconOff?.classList.add('hidden');
+    }
+  });
+
+  btnToggleParticles?.addEventListener('click', () => {
+    goldDustEnabled = !goldDustEnabled;
+    btnToggleParticles.textContent = goldDustEnabled ? 'AKTIF' : 'NONAKTIF';
+    btnToggleParticles.className = goldDustEnabled
+      ? 'px-3 py-1.5 rounded-lg bg-amber-500 text-black font-mono font-bold text-xs transition-colors'
+      : 'px-3 py-1.5 rounded-lg bg-temple-800 text-slate-400 font-mono font-bold text-xs transition-colors';
+    const canvas = document.getElementById('goldDustCanvas');
+    if (canvas && !goldDustEnabled) {
+      const ctx = canvas.getContext('2d');
+      ctx?.clearRect(0, 0, canvas.width, canvas.height);
+    }
+  });
+
+  btnToggleDPad?.addEventListener('click', () => {
+    const touchContainer = document.getElementById('touchControlsContainer');
+    if (touchContainer) {
+      touchContainer.classList.toggle('force-show');
+      const isForced = touchContainer.classList.contains('force-show');
+      btnToggleDPad.textContent = isForced ? 'SELALU TAMPIL' : 'OTOMATIS';
+      btnToggleDPad.className = isForced
+        ? 'px-3 py-1.5 rounded-lg bg-amber-500 text-black font-mono font-bold text-xs transition-colors'
+        : 'px-3 py-1.5 rounded-lg bg-temple-800 text-amber-300 border border-slate-600 font-mono font-bold text-xs transition-colors';
+    }
+  });
+
+  // 4. Button: Keluar
+  const btnExit = document.getElementById('btnMenuExit');
+  const modalExit = document.getElementById('modalExitConfirm');
+  const btnCancelExit = document.getElementById('btnCancelExit');
+  const btnConfirmExit = document.getElementById('btnConfirmExit');
+
+  btnExit?.addEventListener('click', () => {
+    sound.init();
+    sound.playMenuClick();
+    modalExit?.classList.remove('hidden');
+  });
+
+  btnCancelExit?.addEventListener('click', () => {
+    modalExit?.classList.add('hidden');
+    resetKeys();
+  });
+
+  btnConfirmExit?.addEventListener('click', () => {
+    modalExit?.classList.add('hidden');
+    resetStopwatch();
+    resetKeys();
+    alert("Ekspedisi kuil diakhiri. Terima kasih telah menjelajahi Kuil Kuno Mathema!");
+  });
+
+  // Hover sound on all Stone Slab Menu Buttons
+  document.querySelectorAll('.stone-slab-btn').forEach(btn => {
+    btn.addEventListener('mouseenter', () => {
+      sound.playMenuHover();
+    });
+  });
+}
+
