@@ -2452,25 +2452,129 @@ function initScratchpadCanvas() {
   window.addEventListener('touchend', stopDraw);
   window.addEventListener('touchcancel', stopDraw);
 
-  // Tab switcher
+  // Tab switcher & Anti-Cheat Password Protection for Math Sandbox
   const tabBtnCanvas = document.getElementById('tabBtnCanvas');
   const tabBtnCalc = document.getElementById('tabBtnCalc');
   const panelCanvas = document.getElementById('panelCanvas');
   const panelCalc = document.getElementById('panelCalc');
+  const panelCalcLocked = document.getElementById('panelCalcLocked');
+  const iconSandboxLock = document.getElementById('iconSandboxLock');
+  const formUnlockSandbox = document.getElementById('formUnlockSandbox');
+  const inputSandboxPassword = document.getElementById('inputSandboxPassword');
+  const btnToggleSandboxPass = document.getElementById('btnToggleSandboxPass');
+  const msgSandboxPassError = document.getElementById('msgSandboxPassError');
+  const btnBackToCanvas = document.getElementById('btnBackToCanvas');
+  const btnRelockSandbox = document.getElementById('btnRelockSandbox');
+
+  let isSandboxUnlocked = false;
+
+  function isSandboxPasswordValid(raw) {
+    if (!raw) return false;
+    const t = raw.trim();
+    // Sandi titik 8 kali: '........'
+    return (
+      t === '........' || 
+      t === '••••••••' || 
+      t === '········' || 
+      t.toLowerCase() === 'titik 8 kali' || 
+      t.toLowerCase() === 'titik8kali' ||
+      t.toLowerCase() === 'titik titik titik titik titik titik titik titik'
+    );
+  }
+
+  function showCanvasTab() {
+    tabBtnCanvas.className = 'px-3 py-1.5 rounded-lg bg-amber-500 text-black font-semibold text-xs transition-all';
+    tabBtnCalc.className = 'px-3 py-1.5 rounded-lg bg-temple-800 text-slate-300 hover:text-white font-semibold text-xs border border-slate-700 flex items-center gap-1.5 transition-all';
+    panelCanvas.classList.remove('hidden');
+    panelCalc?.classList.add('hidden');
+    panelCalcLocked?.classList.add('hidden');
+    resizeScratchCanvas();
+  }
+
+  function showCalcTab() {
+    tabBtnCalc.className = 'px-3 py-1.5 rounded-lg bg-amber-500 text-black font-semibold text-xs flex items-center gap-1.5 transition-all';
+    tabBtnCanvas.className = 'px-3 py-1.5 rounded-lg bg-temple-800 text-slate-300 hover:text-white font-semibold text-xs border border-slate-700 transition-all';
+    panelCanvas.classList.add('hidden');
+    
+    if (isSandboxUnlocked) {
+      panelCalc?.classList.remove('hidden');
+      panelCalcLocked?.classList.add('hidden');
+    } else {
+      panelCalc?.classList.add('hidden');
+      panelCalcLocked?.classList.remove('hidden');
+      msgSandboxPassError?.classList.add('hidden');
+      if (inputSandboxPassword) {
+        inputSandboxPassword.value = '';
+        setTimeout(() => inputSandboxPassword.focus(), 80);
+      }
+    }
+  }
 
   tabBtnCanvas.addEventListener('click', () => {
-    tabBtnCanvas.className = 'px-3 py-1.5 rounded-lg bg-amber-500 text-black font-semibold text-xs transition-all';
-    tabBtnCalc.className = 'px-3 py-1.5 rounded-lg bg-temple-800 text-slate-300 hover:text-white font-semibold text-xs border border-slate-700 transition-all';
-    panelCanvas.classList.remove('hidden');
-    panelCalc.classList.add('hidden');
-    resizeScratchCanvas();
+    sound.init();
+    sound.playMenuClick();
+    showCanvasTab();
   });
 
   tabBtnCalc.addEventListener('click', () => {
-    tabBtnCalc.className = 'px-3 py-1.5 rounded-lg bg-amber-500 text-black font-semibold text-xs transition-all';
-    tabBtnCanvas.className = 'px-3 py-1.5 rounded-lg bg-temple-800 text-slate-300 hover:text-white font-semibold text-xs border border-slate-700 transition-all';
-    panelCalc.classList.remove('hidden');
-    panelCanvas.classList.add('hidden');
+    sound.init();
+    sound.playMenuClick();
+    showCalcTab();
+  });
+
+  btnBackToCanvas?.addEventListener('click', () => {
+    sound.init();
+    sound.playMenuClick();
+    showCanvasTab();
+  });
+
+  btnToggleSandboxPass?.addEventListener('click', () => {
+    if (!inputSandboxPassword) return;
+    if (inputSandboxPassword.type === 'password') {
+      inputSandboxPassword.type = 'text';
+      btnToggleSandboxPass.textContent = '🙈';
+    } else {
+      inputSandboxPassword.type = 'password';
+      btnToggleSandboxPass.textContent = '👁️';
+    }
+  });
+
+  formUnlockSandbox?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    sound.init();
+    const val = inputSandboxPassword?.value || '';
+    if (isSandboxPasswordValid(val)) {
+      isSandboxUnlocked = true;
+      if (iconSandboxLock) iconSandboxLock.textContent = '🔓';
+      panelCalcLocked?.classList.add('hidden');
+      panelCalc?.classList.remove('hidden');
+      msgSandboxPassError?.classList.add('hidden');
+      if (inputSandboxPassword) {
+        inputSandboxPassword.value = '';
+        inputSandboxPassword.classList.remove('border-rose-500');
+      }
+      sound.playSuccessChime();
+    } else {
+      sound.playTorchExtinguish();
+      if (msgSandboxPassError) msgSandboxPassError.classList.remove('hidden');
+      if (inputSandboxPassword) {
+        inputSandboxPassword.classList.add('animate-shake', 'border-rose-500');
+        setTimeout(() => {
+          inputSandboxPassword.classList.remove('animate-shake');
+        }, 500);
+        inputSandboxPassword.focus();
+      }
+    }
+  });
+
+  btnRelockSandbox?.addEventListener('click', () => {
+    sound.init();
+    sound.playMenuClick();
+    isSandboxUnlocked = false;
+    if (iconSandboxLock) iconSandboxLock.textContent = '🔒';
+    panelCalc?.classList.add('hidden');
+    panelCalcLocked?.classList.remove('hidden');
+    msgSandboxPassError?.classList.add('hidden');
   });
 
   // Inverse calculators with live formula parsing

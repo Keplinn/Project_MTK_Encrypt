@@ -17,7 +17,7 @@
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
 
   <!-- Modular Stylesheet (with cache-buster) -->
-  <link rel="stylesheet" href="style.css?v=2.2">
+  <link rel="stylesheet" href="style.css?v=2.3">
 
   <script>
     tailwind.config = {
@@ -1197,7 +1197,7 @@
         </div>
         <div class="flex items-center gap-2">
           <button id="tabBtnCanvas" class="px-3 py-1.5 rounded-lg bg-amber-500 text-black font-semibold text-xs">🎨 Coretan Bebas</button>
-          <button id="tabBtnCalc" class="px-3 py-1.5 rounded-lg bg-temple-800 text-slate-300 hover:text-white font-semibold text-xs border border-slate-700">🧮 Sandbox Rumus</button>
+          <button id="tabBtnCalc" class="px-3 py-1.5 rounded-lg bg-temple-800 text-slate-300 hover:text-white font-semibold text-xs border border-slate-700 flex items-center gap-1.5 transition-all"><span id="iconSandboxLock">🔒</span> <span>Sandbox Rumus</span></button>
           <button id="btnCloseScratchpad" class="text-slate-400 hover:text-white p-1 ml-2">✕</button>
         </div>
       </div>
@@ -1224,8 +1224,57 @@
           </div>
         </div>
 
+        <!-- Locked Gate for Sandbox Rumus (Anti-Cheat) -->
+        <div id="panelCalcLocked" class="hidden flex-1 flex flex-col items-center justify-center p-6 text-center space-y-4 my-auto min-h-[340px]">
+          <div class="w-16 h-16 rounded-2xl bg-amber-500/10 border-2 border-amber-500/40 flex items-center justify-center text-3xl shadow-gold-glow">
+            🔒
+          </div>
+          <div class="max-w-md space-y-1.5">
+            <h4 class="font-cinzel font-bold text-white text-lg tracking-wide text-amber-300">
+              SEGEL KALKULATOR RUMUS TERKUNCI
+            </h4>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              Fitur kalkulator hitung invers otomatis ini dikunci agar siswa tidak dapat berbuat curang saat ekspedisi. Siswa wajib menghitung secara mandiri di tab <strong>Coretan Bebas</strong>.
+            </p>
+          </div>
+          
+          <form id="formUnlockSandbox" class="w-full max-w-xs space-y-3 pt-2">
+            <div class="space-y-1 text-left">
+              <label for="inputSandboxPassword" class="block text-[11px] font-mono text-slate-400">KATA SANDI PENGAWAS / GURU:</label>
+              <div class="relative">
+                <input type="password" id="inputSandboxPassword" placeholder="Masukkan 8 karakter sandi..." autocomplete="off" class="w-full bg-temple-900 border border-amber-500/50 rounded-xl px-4 py-2.5 text-center font-mono text-amber-300 tracking-widest text-base focus:outline-none focus:ring-2 focus:ring-amber-500 placeholder:text-slate-600 placeholder:tracking-normal placeholder:text-xs">
+                <button type="button" id="btnToggleSandboxPass" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-amber-300 text-xs p-1" title="Lihat/Sembunyikan Sandi">
+                  👁️
+                </button>
+              </div>
+            </div>
+            
+            <div id="msgSandboxPassError" class="text-xs text-rose-400 font-semibold hidden flex items-center justify-center gap-1">
+              <span>⚠️</span> <span>Sandi salah! Akses ditolak.</span>
+            </div>
+            
+            <div class="flex items-center gap-2 pt-1">
+              <button type="button" id="btnBackToCanvas" class="flex-1 py-2 px-3 rounded-lg bg-temple-800 hover:bg-temple-700 text-slate-300 font-cinzel font-bold text-xs border border-slate-700 transition-all">
+                CORETAN MANUAL
+              </button>
+              <button type="submit" id="btnUnlockSandbox" class="flex-1 py-2 px-3 rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-cinzel font-bold text-xs shadow-gold-glow transition-all active:scale-95">
+                BUKA SEGEL 🔓
+              </button>
+            </div>
+          </form>
+        </div>
+
         <!-- Math Sandbox -->
         <div id="panelCalc" class="hidden space-y-4">
+          <!-- Admin Status Bar -->
+          <div class="flex items-center justify-between bg-temple-900/90 px-3 py-2 rounded-lg border border-amber-500/40 text-xs">
+            <span class="text-amber-300 font-semibold flex items-center gap-1.5 font-cinzel text-xs">
+              <span class="text-emerald-400">●</span> MODE PENGAWAS: AKSES KALKULATOR TERBUKA
+            </span>
+            <button id="btnRelockSandbox" type="button" class="px-2.5 py-1 rounded bg-rose-950/60 hover:bg-rose-900/80 text-rose-300 border border-rose-700/50 text-[11px] font-semibold flex items-center gap-1 transition-all">
+              <span>🔒</span> <span>Kunci Kembali</span>
+            </button>
+          </div>
           <div class="grid sm:grid-cols-2 gap-4">
             <!-- Linear -->
             <div class="p-3.5 rounded-lg bg-temple-850 border border-slate-700 space-y-2 text-xs">
@@ -1641,6 +1690,6 @@
 
 
   <!-- Modular Game Engine JavaScript (with cache-buster) -->
-  <script src="game.js?v=2.2"></script>
+  <script src="game.js?v=2.3"></script>
 </body>
 </html>

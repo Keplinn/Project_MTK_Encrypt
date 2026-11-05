@@ -95,7 +95,7 @@ Permainan kini semakin menantang dan memacu adrenalin dengan jebakan fisik yang 
 ## 🧰 Fitur Pendukung
 * **Dukungan Huruf Kapital & Huruf Kecil (Garis Bilangan Bulat):** Mendukung penuh kuantifikasi huruf standar Kuil ($0 = \text{Spasi}$, $1 \text{ s/d } 26 = \text{A-Z}$ [Kapital], $-1 \text{ s/d } -26 = \text{a-z}$ [Kecil]). Siswa dapat mengetikkan jawaban dalam huruf besar, huruf kecil, maupun kombinasi persis tanpa khawatir penalti *Caps Lock*.
 * **Batu Rosetta Interaktif:** Konversi standar kuil dengan pencarian cepat, penguji huruf kapital/kecil interaktif, dan klik ubin untuk mengisi penguji huruf secara otomatis.
-* **Papan Coretan Digital & Sandbox Invers:** Kanvas coretan bebas dan kalkulator uji rumus invers aljabar dengan label deteksi huruf kapital atau kecil.
+* **Papan Coretan Digital & Sandbox Invers (Anti-Curang):** Kanvas coretan bebas bagi siswa untuk berhitung manual, serta kalkulator otomatis invers aljabar yang diproteksi segel kata sandi khusus guru/pengawas agar siswa tidak menyontek selama ekspedisi.
 * **Kompas Kuno (Hint):** 1x kesempatan membuka terjemahan kata pertama (di Pintu 3 atau Pintu Utama) sesuai format huruf aslinya.
 * **Kustomisasi Rumus Bebas & Preset Cepat:** Guru atau siswa dapat mengetik rumus aljabar bebas secara langsung (contoh: `f(x) = 3x - 4`, `2x + 7`, `x - 5`, `(g ∘ f)(x) = 6x + 5`, atau format perkalian fungsi `3(2x + 1) + 2`). Sistem dilengkapi:
   * **Parser Aljabar Cerdas:** Otomatis mengekstrak koefisien $a, b, c, d$ dari teks rumus aljabar yang diketik.
